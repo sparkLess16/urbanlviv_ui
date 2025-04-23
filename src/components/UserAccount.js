@@ -3,7 +3,7 @@ import { useState } from "react";
 import myImage from "../assets/useraccount.png";
 import "../styles/UserAccount.css";
 import Tabs from "./Tabs";
-import MapComponent from "./MapComponent";
+import ReportForm from "./ReportForm";
 
 const UserAccount = () => {
   return (
@@ -23,9 +23,7 @@ const UserAccount = () => {
           <Tabs />
         </div>
         <div className="left-side">
-          <div id="map" style={{ height: "400px", width: "100%" }}>
-            <MapComponent />
-          </div>
+          <ReportForm />
         </div>
       </div>
     </div>

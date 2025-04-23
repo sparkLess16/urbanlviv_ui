@@ -20,7 +20,7 @@ p {
 
 .text-unimport {
   color: #666666;
-  width: 453px;
+  width: 553px;
 }
 
 .tabs {
@@ -64,14 +64,17 @@ p {
 }
 
 .right-side {
-  width: 580px;
+  width: 600px;
   display: block;
 }
 
 .container-useraccount {
   display: flex;
+  width: 90%;
+  justify-content: center;
+  gap: 120px;
 }
 
 .left-side {
-  width: 600px;
+  display: block;
 }
