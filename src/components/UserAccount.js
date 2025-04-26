@@ -4,6 +4,7 @@ import myImage from "../assets/useraccount.png";
 import "../styles/UserAccount.css";
 import Tabs from "./Tabs";
 import ReportForm from "./ReportForm";
+import EditForm from "./EditForm";
 
 const UserAccount = () => {
   return (
@@ -24,6 +25,7 @@ const UserAccount = () => {
         </div>
         <div className="left-side">
           <ReportForm />
+          <EditForm />
         </div>
       </div>
     </div>
