@@ -77,13 +77,18 @@ const ReportForm = () => {
         </div>
 
         <div class="input-group wide">
-          <label>Status of Problem</label>
+          <label>Priority of Problem</label>
           <select id="status">
             <option value="ASAP">ASAP</option>
             <option value="Moderate">Moderate</option>
             <option value="Low">Low</option>
           </select>
         </div>
+      </div>
+
+      <div class="input-group full-width">
+        <label>Type of Problem</label>
+        <select id="type"></select>
       </div>
 
       <div class="input-group full-width">
