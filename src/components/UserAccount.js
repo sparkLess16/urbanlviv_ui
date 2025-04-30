@@ -12,7 +12,7 @@ const UserAccount = () => {
       <img src={myImage} alt="Description" className="top-pic" />
       <div className="container-useraccount">
         <div className="right-side">
-          <h2>Welcome Back, [Name]!</h2>
+          <h2>Welcome Back, GERUS ANDREANA!</h2>
           <p>
             Here, you can easily report any issues you encounter around the
             city.
