@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Report.css";
+import axios from "axios";
 
 const Report = ({ data }) => {
   const {
@@ -29,46 +30,115 @@ const Report = ({ data }) => {
   ]);
   const [commentInput, setCommentInput] = useState("");
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!commentInput.trim()) return;
 
-    const newComment = {
-      name: "Admin",
-      text: commentInput,
-      date: new Date().toLocaleDateString("en-GB"),
-    };
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
 
-    setComments([...comments, newComment]);
-    setCommentInput("");
+      // Need to pass 2 parameters (report_id and comment_content )
+
+      // Дороби, передавай правильно report_id, він якось має мабуть передаватись параметром в handleLike
+      const payload = {
+        ReportId: data.reportId.toString() || data.report_id.toString(),
+        CommentContext: commentInput,
+      };
+
+      await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-comment",
+          payload,
+          { headers }
+      );
+
+      const newComment = {
+        name: "Admin",
+        text: commentInput,
+        date: new Date().toLocaleDateString("en-GB"),
+      };
+      setComments([...comments, newComment]);
+      setCommentInput("");
+    } catch (err) {
+      console.error("Помилка при додаванні коментаря:", err);
+    }
   };
 
   const [userReaction, setUserReaction] = useState(null); // 'like' | 'dislike' | null
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
 
-  const handleLike = () => {
-    if (userReaction === "like") {
-      setLikes(likes - 1);
-      setUserReaction(null);
-    } else {
-      if (userReaction === "dislike") {
-        setDislikes(dislikes - 1);
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      // Need to pass 2 parameters (report_id and reaction_id )
+      // Like_id = 1
+      //Dislike_id = 2
+
+      // Дороби, передавай правильно report_id, він якось має мабуть передаватись параметром в handleLike
+      await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+          {
+            ReportId: data.Data.reportId.toString(),
+            ReactionId: "1", // LIKE
+          },
+          { headers }
+      );
+
+      if (userReaction === "like") {
+        setLikes(likes - 1);
+        setUserReaction(null);
+      } else {
+        if (userReaction === "dislike") {
+          setDislikes(dislikes - 1);
+        }
+        setLikes(likes + 1);
+        setUserReaction("like");
       }
-      setLikes(likes + 1);
-      setUserReaction("like");
+    } catch (err) {
+      console.error("Помилка при створенні реакції:", err);
     }
   };
 
-  const handleDislike = () => {
-    if (userReaction === "dislike") {
-      setDislikes(dislikes - 1);
-      setUserReaction(null);
-    } else {
-      if (userReaction === "like") {
-        setLikes(likes - 1);
+  // Need to pass 2 parameters (report_id and reaction_id )
+  // Like_id = 1
+  //Dislike_id = 2
+  const handleDislike = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+          {
+            ReportId: data.Data.reportId.toString(),
+            ReactionId: "2", // DISLIKE
+          },
+          { headers }
+      );
+
+      if (userReaction === "dislike") {
+        setDislikes(dislikes - 1);
+        setUserReaction(null);
+      } else {
+        if (userReaction === "like") {
+          setLikes(likes - 1);
+        }
+        setDislikes(dislikes + 1);
+        setUserReaction("dislike");
       }
-      setDislikes(dislikes + 1);
-      setUserReaction("dislike");
+    } catch (err) {
+      console.error("Помилка при створенні реакції:", err);
     }
   };
 
