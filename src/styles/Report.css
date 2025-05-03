@@ -52,3 +52,108 @@
   object-fit: cover;
   border-radius: 8px;
 }
+
+.comment {
+  display: block;
+  padding: 12px 16px;
+  background: #fbfbfb;
+  border-radius: 24px;
+  margin-bottom: 12px;
+}
+
+.comment-upper {
+  display: flex;
+  justify-content: space-between;
+}
+
+.comment-name {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 500;
+  color: #000000;
+  margin: 0;
+}
+
+.comment-date {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: #666666;
+}
+
+.comment-description {
+  margin: 0;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.comment-title {
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.comment-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.comment-input input {
+  border-radius: 50px;
+  outline: none;
+  flex: 1;
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+  color: #666666;
+  border: none;
+}
+
+input:focus {
+  color: #000000;
+}
+
+.comment-input button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reaction-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.reaction-btn {
+  background-color: #fbfbfb;
+  color: #999;
+  border: none;
+  border-radius: 24px;
+  padding: 8px 14px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reaction-btn:hover {
+  background-color: #f3f3f3;
+}
+.reaction-btn.active {
+  background-color: #f3f3f3; /* greenish for like */
+  font-weight: bold;
+  color: #000000;
+}

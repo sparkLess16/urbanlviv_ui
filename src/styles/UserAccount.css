@@ -27,7 +27,7 @@ p {
   display: flex;
   gap: 16px;
   border-bottom: 1px solid #e0e0e0;
-  max-width: 189px;
+  max-width: 196px;
 }
 
 .tab {
@@ -77,4 +77,88 @@ p {
 
 .left-side {
   display: block;
+}
+
+.headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.icons {
+  display: flex;
+  gap: 4px;
+}
+
+.name {
+  margin-bottom: 0;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(63, 63, 63, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.modal-content-notif {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 12px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 42px;
+  right: 42px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.open-modal-btn {
+  background: #ffffff;
+  padding: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: -80px;
+  left: -250px;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.notificationBox {
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0;
+  margin-bottom: 12px;
 }
