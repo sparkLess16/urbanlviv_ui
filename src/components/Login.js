@@ -36,6 +36,14 @@ const Login = () => {
           null,
           config
         );
+        const identityResponse = await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/auth/identity",
+          null,
+          config
+        );
+
+        const userData = identityResponse.data;
+        localStorage.setItem("user", JSON.stringify(userData));
 
         navigate("/userAccount");
       }

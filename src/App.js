@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import UserAccountPage from "./pages/UserAccountPage";
-import VerificationPage from "./pages/VerificationPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import ReportDetailPage from "./pages/ReportDetailPage";
 import "./App.css";
 
 function App() {
@@ -37,7 +37,17 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/verification" element={<VerificationPage />} />
+
+        <Route
+          path="/userAccount/:reportId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ReportDetailPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Report.css";
 import axios from "axios";
 
 const Report = ({ data }) => {
+  const navigate = useNavigate();
   const {
     status_name,
     title,
@@ -10,6 +12,8 @@ const Report = ({ data }) => {
     description,
     location,
     attachment_url,
+    total_likes,
+    total_dislikes,
   } = data;
 
   const formattedDate = new Date(created_dt).toLocaleDateString();
@@ -22,6 +26,15 @@ const Report = ({ data }) => {
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
   const [showAllComments, setShowAllComments] = useState(false);
+
+  const [userReaction, setUserReaction] = useState(null); // 'like' | 'dislike' | null
+  const [likes, setLikes] = useState(total_likes || 0);
+  const [dislikes, setDislikes] = useState(total_dislikes || 0);
+
+  useEffect(() => {
+    setLikes(data.total_likes || 0);
+    setDislikes(data.total_dislikes || 0);
+  }, [data.total_likes, data.total_dislikes]);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -45,9 +58,12 @@ const Report = ({ data }) => {
         console.error("Помилка при завантаженні коментарів:", err);
       }
     };
-
     fetchComments();
   }, [data]);
+
+  const handleReportClick = (reportId) => {
+    navigate(`/userAccount/${reportId}`);
+  };
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return;
@@ -89,11 +105,9 @@ const Report = ({ data }) => {
     }
   };
 
-  const [userReaction, setUserReaction] = useState(null); // 'like' | 'dislike' | null
-  const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState(0);
-
   const handleLike = async () => {
+    const reportId = data.reportId?.toString() || data.report_id?.toString();
+
     try {
       const token = localStorage.getItem("authToken");
       const headers = {
@@ -101,34 +115,41 @@ const Report = ({ data }) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      // Like_id = 1
-      //Dislike_id = 2
-
-      await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-        {
-          ReportId: data.reportId?.toString() || data.report_id?.toString(),
-          ReactionId: "1", // LIKE
-        },
-        { headers }
-      );
-
       if (userReaction === "like") {
-        setLikes(likes - 1);
+        // Скасування лайку
+        await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/remove-reaction",
+          {
+            ReportId: reportId,
+          },
+          { headers }
+        );
+        setLikes((prev) => prev - 1);
         setUserReaction(null);
       } else {
+        // Додаємо лайк
+        await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+          {
+            ReportId: reportId,
+            ReactionId: "1", // LIKE
+          },
+          { headers }
+        );
         if (userReaction === "dislike") {
-          setDislikes(dislikes - 1);
+          setDislikes((prev) => prev - 1);
         }
-        setLikes(likes + 1);
+        setLikes((prev) => prev + 1);
         setUserReaction("like");
       }
     } catch (err) {
-      console.error("Помилка при створенні реакції:", err);
+      console.error("Помилка при створенні/скасуванні реакції:", err);
     }
   };
 
   const handleDislike = async () => {
+    const reportId = data.reportId?.toString() || data.report_id?.toString();
+
     try {
       const token = localStorage.getItem("authToken");
       const headers = {
@@ -136,32 +157,47 @@ const Report = ({ data }) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-        {
-          ReportId: data.reportId?.toString() || data.report_id?.toString(),
-          ReactionId: "2", // DISLIKE
-        },
-        { headers }
-      );
-
       if (userReaction === "dislike") {
-        setDislikes(dislikes - 1);
+        // Скасування дизлайку
+        await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/remove-reaction",
+          {
+            ReportId: reportId,
+          },
+          { headers }
+        );
+        setDislikes((prev) => prev - 1);
         setUserReaction(null);
       } else {
+        // Додаємо дизлайк
+        await axios.post(
+          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+          {
+            ReportId: reportId,
+            ReactionId: "2", // DISLIKE
+          },
+          { headers }
+        );
         if (userReaction === "like") {
-          setLikes(likes - 1);
+          setLikes((prev) => prev - 1);
         }
-        setDislikes(dislikes + 1);
+        setDislikes((prev) => prev + 1);
         setUserReaction("dislike");
       }
     } catch (err) {
-      console.error("Помилка при створенні реакції:", err);
+      console.error("Помилка при створенні/скасуванні реакції:", err);
     }
   };
 
   return (
-    <div className="report-card">
+    <div
+      className="report-card"
+      onClick={() =>
+        handleReportClick(
+          data?.reportId?.toString() || data?.report_id?.toString()
+        )
+      }
+    >
       <div className="report-status">{status_name}</div>
       <div className="report-header">
         <strong>{title}</strong>
@@ -184,13 +220,20 @@ const Report = ({ data }) => {
       <div className="reaction-buttons">
         <button
           className={`reaction-btn ${userReaction === "like" ? "active" : ""}`}
-          onClick={handleLike}
+          onClick={(e) => {
+            e.stopPropagation(); // prevent report click
+            handleLike();
+          }}
         >
           ❤️ {likes}
         </button>
+
         <button
           className={`reaction-btn ${userReaction === "dislike" ? "active" : ""}`}
-          onClick={handleDislike}
+          onClick={(e) => {
+            e.stopPropagation(); // prevent report click
+            handleDislike();
+          }}
         >
           👎 {dislikes}
         </button>
@@ -250,9 +293,17 @@ const Report = ({ data }) => {
           id="commentText"
           placeholder="Write a comment"
           value={commentInput}
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => setCommentInput(e.target.value)}
         />
-        <button id="submitComment" onClick={handleAddComment}>
+
+        <button
+          id="submitComment"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddComment();
+          }}
+        >
           <svg
             width="14"
             height="14"
