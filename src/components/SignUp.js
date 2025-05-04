@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import "../styles/SignUp.css";
-import myImage from '../assets/img2.jpg';
+import myImage from "../assets/img2.jpg";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Signup = () => {
       .required("Password is required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
-      .required("Confirm Password is required")
+      .required("Confirm Password is required"),
   });
 
   const initialValues = {
@@ -32,7 +32,7 @@ const Signup = () => {
     email: "",
     phone: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   };
 
   // Handle form submission with an API call
@@ -52,8 +52,7 @@ const Signup = () => {
       // If there is an error from the API, set a server error in Formik
       setErrors({
         server:
-          error.response?.data?.message ||
-          "Sign-up failed, please try again."
+          error.response?.data?.message || "Sign-up failed, please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -61,15 +60,15 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup">
-      <img src={myImage} alt="Description" className="img-signup"/>
-      <div className="container">
-        <h2>Create an account</h2>
+    <div className="signup-container">
+      <div className="signup-container-img">
+        <img src={myImage} alt="Description" className="img-signup" />
+      </div>
+
+      <div className="signup-container-content">
+        <h2 className="signup-container-content-title">Create an account</h2>
         <p className="login-link">
-          Already have an account?{" "}
-          <Link to="/login">
-            Login
-          </Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
         <Formik
           initialValues={initialValues}
@@ -78,7 +77,9 @@ const Signup = () => {
         >
           {({ isSubmitting, errors }) => (
             <Form className="addUserForm">
-              {errors.server && <p className="error-message">{errors.server}</p>}
+              {errors.server && (
+                <p className="error-message">{errors.server}</p>
+              )}
               <div className="inputGroup">
                 <div className="form-group">
                   <label htmlFor="firstName">First Name:</label>
@@ -88,7 +89,11 @@ const Signup = () => {
                     name="firstName"
                     placeholder="Enter your first name"
                   />
-                  <ErrorMessage name="firstName" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="firstName"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -99,7 +104,11 @@ const Signup = () => {
                     name="lastName"
                     placeholder="Enter your last name"
                   />
-                  <ErrorMessage name="lastName" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="lastName"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -110,9 +119,12 @@ const Signup = () => {
                     name="email"
                     placeholder="Enter your email"
                   />
-                  <ErrorMessage name="email" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="email"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
-
 
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number:</label>
@@ -122,7 +134,11 @@ const Signup = () => {
                     name="phone"
                     placeholder="Enter your phone number"
                   />
-                  <ErrorMessage name="phone" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="phone"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -133,7 +149,11 @@ const Signup = () => {
                     name="password"
                     placeholder="Enter password"
                   />
-                  <ErrorMessage name="password" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="password"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
 
                 <div className="form-group">
@@ -144,14 +164,23 @@ const Signup = () => {
                     name="confirmPassword"
                     placeholder="Confirm your password"
                   />
-                  <ErrorMessage name="confirmPassword" component="p" className="error-message" />
+                  <ErrorMessage
+                    name="confirmPassword"
+                    component="p"
+                    className="error-message"
+                  />
                 </div>
 
                 <p className="terms">
-                  By creating an account, you agree to our Terms of use and Privacy Policy
+                  By creating account, you agree to Terms of use and Privacy
+                  Policy
                 </p>
 
-                <button type="submit" className="btn btn-success" disabled={isSubmitting}>
+                <button
+                  type="submit"
+                  className="signup-btn"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? "Signing Up..." : "Create an Account"}
                 </button>
               </div>

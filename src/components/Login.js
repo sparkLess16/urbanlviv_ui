@@ -65,10 +65,13 @@ const Login = () => {
   });
 
   return (
-    <div className="login">
-      <img src={myImage} alt="Description" className="image-login" />
-      <div className="container">
-        <h2>Login</h2>
+    <div className="login-container">
+      <div className="login-container-img">
+        <img src={myImage} alt="Description" className="image-login" />
+      </div>
+
+      <div className="login-container-content">
+        <h2 className="login-container-content-title">Login</h2>
         <p className="signup-link">
           Already have an account? <Link to="/signup">Sign Up</Link>
         </p>
@@ -115,7 +118,7 @@ const Login = () => {
 
                 <button
                   type="submit"
-                  className="btn btn-success"
+                  className="form-group-btn"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Login..." : "Login"}

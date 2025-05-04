@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/Report.css";
 import axios from "axios";
 
@@ -12,26 +12,52 @@ const Report = ({ data }) => {
     attachment_url,
   } = data;
 
-  // format date
   const formattedDate = new Date(created_dt).toLocaleDateString();
-  // ensure attachments array
   const attachments = Array.isArray(attachment_url)
     ? attachment_url
     : attachment_url
       ? [attachment_url]
       : [];
 
-  const [comments, setComments] = useState([
-    {
-      name: "Admin",
-      text: "Lorem Ipsum Dolor Sit amet",
-      date: "22/09/2024",
-    },
-  ]);
+  const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
+  const [showAllComments, setShowAllComments] = useState(false);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      const reportId =
+        data?.reportId?.toString() || data?.report_id?.toString();
+      if (!reportId) return;
+
+      try {
+        const response = await axios.get(
+          `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/comments`
+        );
+
+        const fetchedComments = response.data.map((item) => ({
+          name: item.author || "Anonymous",
+          text: item.comment_context,
+          date: new Date(item.created_dt).toLocaleDateString("en-GB"),
+        }));
+
+        setComments(fetchedComments);
+      } catch (err) {
+        console.error("Помилка при завантаженні коментарів:", err);
+      }
+    };
+
+    fetchComments();
+  }, [data]);
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return;
+
+    const reportId = data?.reportId?.toString() || data?.report_id?.toString();
+
+    if (!reportId) {
+      console.error("Report ID is missing — cannot submit comment.");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("authToken");
@@ -40,18 +66,15 @@ const Report = ({ data }) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      // Need to pass 2 parameters (report_id and comment_content )
-
-      // Дороби, передавай правильно report_id, він якось має мабуть передаватись параметром в handleLike
       const payload = {
-        ReportId: data.reportId.toString() || data.report_id.toString(),
+        ReportId: reportId,
         CommentContext: commentInput,
       };
 
       await axios.post(
-          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-comment",
-          payload,
-          { headers }
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-comment",
+        payload,
+        { headers }
       );
 
       const newComment = {
@@ -78,18 +101,16 @@ const Report = ({ data }) => {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       };
 
-      // Need to pass 2 parameters (report_id and reaction_id )
       // Like_id = 1
       //Dislike_id = 2
 
-      // Дороби, передавай правильно report_id, він якось має мабуть передаватись параметром в handleLike
       await axios.post(
-          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-          {
-            ReportId: data.Data.reportId.toString(),
-            ReactionId: "1", // LIKE
-          },
-          { headers }
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+        {
+          ReportId: data.reportId?.toString() || data.report_id?.toString(),
+          ReactionId: "1", // LIKE
+        },
+        { headers }
       );
 
       if (userReaction === "like") {
@@ -107,9 +128,6 @@ const Report = ({ data }) => {
     }
   };
 
-  // Need to pass 2 parameters (report_id and reaction_id )
-  // Like_id = 1
-  //Dislike_id = 2
   const handleDislike = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -119,12 +137,12 @@ const Report = ({ data }) => {
       };
 
       await axios.post(
-          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-          {
-            ReportId: data.Data.reportId.toString(),
-            ReactionId: "2", // DISLIKE
-          },
-          { headers }
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+        {
+          ReportId: data.reportId?.toString() || data.report_id?.toString(),
+          ReactionId: "2", // DISLIKE
+        },
+        { headers }
       );
 
       if (userReaction === "dislike") {
@@ -180,37 +198,49 @@ const Report = ({ data }) => {
 
       <div className="comments-section">
         <svg
-          width="514"
+          width="566"
           height="2"
-          viewBox="0 0 514 2"
+          viewBox="0 0 566 2"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M0 1H514" stroke="#F3F3F3" strokeWidth="2" />
+          <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2" />
         </svg>
 
-        <h3 className="comment-title">Comment Section</h3>
+        <div className="comment-section-title">
+          <h3 className="comment-title">Comment Section</h3>
+          {comments.length > 2 && (
+            <button
+              className="see-more-comments-btn"
+              onClick={() => setShowAllComments(!showAllComments)}
+            >
+              {showAllComments ? "Hide" : `See more (${comments.length - 2})`}
+            </button>
+          )}
+        </div>
 
-        {comments.map((comment, index) => (
-          <div className="comment" key={index}>
-            <div className="comment-upper">
-              <p className="comment-name">{comment.name}</p>
-              <p className="comment-date">{comment.date}</p>
+        {(showAllComments ? comments : comments.slice(-2)).map(
+          (comment, index) => (
+            <div className="comment" key={index}>
+              <div className="comment-upper">
+                <p className="comment-name">{comment.name}</p>
+                <p className="comment-date">{comment.date}</p>
+              </div>
+              <div>
+                <p className="comment-description">{comment.text}</p>
+              </div>
             </div>
-            <div>
-              <p className="comment-description">{comment.text}</p>
-            </div>
-          </div>
-        ))}
+          )
+        )}
 
         <svg
-          width="514"
+          width="566"
           height="2"
-          viewBox="0 0 514 2"
+          viewBox="0 0 566 2"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M0 1H514" stroke="#F3F3F3" strokeWidth="2" />
+          <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2" />
         </svg>
       </div>
 

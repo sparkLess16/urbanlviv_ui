@@ -1,19 +1,17 @@
-.container {
-  max-width: 400px;
-  padding: 20px;
+.login-container-content {
+  width: 400px;
+  margin: 0 auto;
 }
 
-
-.signup-link{
+.signup-link {
   font-weight: 400;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 24px;
   color: #333333;
   margin: 0;
   margin-top: 8px;
   margin-bottom: 16px;
 }
-
 
 .form-group {
   margin-bottom: 12px;
@@ -34,7 +32,6 @@ label {
   margin-top: 2px;
 }
 
-
 .addUserForm .inputGroup input {
   border: 1px solid #ccc;
   border-radius: 12px;
@@ -50,32 +47,34 @@ input::placeholder {
   color: rgb(122, 122, 122); /* Replace 'red' with your desired color */
 }
 
-.inputGroup button {
+.form-group-btn {
   background-color: #111111;
   color: white;
   font-weight: 500;
   border: none;
   border-radius: 32px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   transition: background 0.3s ease-in-out;
-  width: 270px;
-  height: 64px;
+  width: 100%;
+  height: 48px;
   margin-top: 12px;
 }
 
-.inputGroup button:hover {
+.form-group-btn:hover {
   background-color: #4e4e4e;
 }
 
-
-.image-login{ 
+.image-login {
   height: 100vh;
-  width: 1092px;
+  width: 55vw;
 }
 
-.login{
+.login-container {
   display: flex;
-  align-items: center; 
-  gap: 150px;
+  align-items: center;
+}
+
+.login-container-content-title {
+  font-size: 32px;
 }

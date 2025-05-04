@@ -1,0 +1,40 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 89%;
+  height: 40px;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: rgb(255, 255, 255);
+  padding: 10px 90px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.logo {
+  font-size: 14px;
+  font-weight: 300;
+  cursor: pointer;
+  color: black;
+}
+
+.header-buttons button {
+  margin-left: 10px;
+  color: rgb(0, 0, 0);
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 4px;
+  outline: none;
+}
+
+.header-buttons button:hover {
+  color: rgb(103, 102, 102);
+}
