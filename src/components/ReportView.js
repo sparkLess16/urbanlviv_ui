@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/ReportView.css";
 import EditModal from "./EditModal";
+import "../styles/ReportView.css";
+import "../styles/Report.css";
 
 const ReportView = () => {
-  const { id } = useParams();
+  const { reportId } = useParams();
   const [reportData, setReportData] = useState(null);
-  const [userReaction, setUserReaction] = useState(null)
-  const [likes, setLikes] = useState(0);
-  const [dislikes, setDislikes] = useState(0);
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
   const [showAllComments, setShowAllComments] = useState(false);
-  const isReportCreator = reportData?.createdBy === id;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [priorities, setPriorities] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [userReaction, setUserReaction] = useState(null);
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+
+  const userId = +JSON.parse(localStorage.getItem("user") || "{}")?.data
+    ?.user_id;
 
   const navigate = useNavigate();
 
@@ -22,33 +27,49 @@ const ReportView = () => {
     navigate("/userAccount");
   };
 
-  useEffect(() => {
-    const fetchReport = async () => {
+  const fetchReport = async () => {
+    try {
       const token = localStorage.getItem("authToken");
       const headers = {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
       };
-
       const res = await axios.get(
-          `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${id}/details`,
-          { headers }
+        `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/details`,
+        { headers }
       );
+
       const raw = res.data.Data ?? res.data.data;
-      const rpt = Array.isArray(raw) ? raw[0] : raw ?? {};
-
-      setUserReaction(
-          rpt.is_user_liked    ? "like"    :
-              rpt.is_user_disliked ? "dislike" :
-                  null
-      );
-      setLikes(rpt.total_likes    || 0);
-      setDislikes(rpt.total_dislikes || 0);
-
+      const rpt = Array.isArray(raw) ? raw[0] : (raw ?? {});
       setReportData(rpt);
-    };
+    } catch (err) {
+      console.error("Error fetching report:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!reportData) return;
+    console.log(reportData);
+
+    setLikes(reportData.total_likes || 0);
+    setDislikes(reportData.total_dislikes || 0);
+    setUserReaction(
+      reportData.user_liked
+        ? "like"
+        : reportData.user_disliked
+          ? "dislike"
+          : null
+    );
+  }, [reportData]);
+
+  useEffect(() => {
+    setReportData(null);
+    setComments([]);
+    setShowAllComments(false);
+    setCommentInput("");
+
     fetchReport();
-  }, [id]);
+  }, [reportId]);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -59,17 +80,19 @@ const ReportView = () => {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
-        const reportId = (reportData.reportId || reportData.report_id).toString();
+        const reportId = (
+          reportData.reportId || reportData.report_id
+        ).toString();
 
         const res = await axios.get(
-            `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/comments`,
-            { headers }
+          `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/comments`,
+          { headers }
         );
 
-        const comms = (res.data.Data || []).map(c => ({
-          created_by:      c.created_by,
+        const comms = (res.data.Data || []).map((c) => ({
+          created_by: c.created_by,
           comment_content: c.comment_content,
-          created_dt:      c.created_dt
+          created_dt: c.created_dt,
         }));
 
         setComments(comms);
@@ -80,61 +103,49 @@ const ReportView = () => {
     fetchComments();
   }, [reportData]);
 
-  const handleLike = async () => {
-    const reportId = (reportData?.reportId || reportData?.report_id)?.toString();
-    if (!reportId) return;
-
+  useEffect(() => {
     const token = localStorage.getItem("authToken");
-    const headers = {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-    await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-        { ReportId: reportId, ReactionId: "1" },
+    axios
+      .get(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/priorities",
         { headers }
-    );
+      )
+      .then((res) => {
+        const raw = Array.isArray(res.data.Data) ? res.data.Data : [];
+        const list = raw.map((item) => ({
+          id: parseInt(item.priority_id, 10),
+          name: item.priority_display_name || item.priority_name,
+        }));
+        setPriorities(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load priorities", err);
+      });
 
-    if (userReaction === "like") {
-      setLikes(prev => prev - 1);
-      setUserReaction(null);
-    } else {
-      if (userReaction === "dislike") setDislikes(prev => prev - 1);
-      setLikes(prev => prev + 1);
-      setUserReaction("like");
-    }
-  };
-
-  const handleDislike = async () => {
-    const reportId = (reportData?.reportId || reportData?.report_id)?.toString();
-    if (!reportId) return;
-
-    const token = localStorage.getItem("authToken");
-    const headers = {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
-        { ReportId: reportId, ReactionId: "2" },
+    // Load problem types
+    axios
+      .get(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/problem-types",
         { headers }
-    );
+      )
+      .then((res) => {
+        const raw = Array.isArray(res.data.Data) ? res.data.Data : [];
+        const list = raw.map((item) => ({
+          id: parseInt(item.problem_type_id, 10),
+          name: item.problem_display_name || item.problem_name,
+        }));
+        setTypes(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load problem types", err);
+      });
+  }, []);
 
-    if (userReaction === "dislike") {
-      setDislikes(prev => prev - 1);
-      setUserReaction(null);
-    } else {
-      if (userReaction === "like") setLikes(prev => prev - 1);
-      setDislikes(prev => prev + 1);
-      setUserReaction("dislike");
-    }
-  };
-
-
-
-  if (!reportData) return <div>Loading...</div>;
+  if (!reportData) {
+    return <div className="report-view-container">Loading...</div>;
+  }
 
   const {
     status_name,
@@ -143,8 +154,10 @@ const ReportView = () => {
     description,
     location,
     attachment_url,
+    created_by,
   } = reportData;
 
+  const isReportCreator = created_by === userId;
   const formattedDate = new Date(created_dt).toLocaleDateString();
   const attachments = Array.isArray(attachment_url)
     ? attachment_url
@@ -155,7 +168,9 @@ const ReportView = () => {
   const handleAddComment = async () => {
     if (!commentInput.trim()) return;
 
-    const reportId = (reportData?.reportId || reportData?.report_id)?.toString();
+    const reportId = (
+      reportData?.reportId || reportData?.report_id
+    )?.toString();
     if (!reportId) return console.error("No reportId");
 
     try {
@@ -166,21 +181,81 @@ const ReportView = () => {
       };
 
       await axios.post(
-          "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-comment",
-          { ReportId: reportId, CommentContext: commentInput },
-          { headers }
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-comment",
+        { ReportId: reportId, CommentContext: commentInput },
+        { headers }
       );
 
       const me = JSON.parse(localStorage.getItem("user") || "{}");
       const newC = {
-        created_by:      me.name || "Anonymous",
+        created_by: me.name || "Anonymous",
         comment_content: commentInput,
-        created_dt:      new Date().toISOString()
+        created_dt: new Date().toISOString(),
       };
-      setComments(prev => [...prev, newC]);
+      setComments((prev) => [...prev, newC]);
       setCommentInput("");
     } catch (err) {
       console.error("Помилка при додаванні коментаря:", err);
+    }
+  };
+
+  const handleLike = async () => {
+    const id =
+      reportData.reportId?.toString() || reportData.report_id?.toString();
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      await axios.post(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+        { ReportId: id, ReactionId: "1" },
+        { headers }
+      );
+
+      if (userReaction === "like") {
+        setLikes((prev) => prev - 1);
+        setUserReaction(null);
+      } else {
+        if (userReaction === "dislike") setDislikes((prev) => prev - 1);
+        setLikes((prev) => prev + 1);
+        setUserReaction("like");
+      }
+    } catch (err) {
+      console.error("Error handling like:", err);
+    }
+  };
+
+  const handleDislike = async () => {
+    const id =
+      reportData.reportId?.toString() || reportData.report_id?.toString();
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      await axios.post(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create-reaction",
+        { ReportId: id, ReactionId: "2" },
+        { headers }
+      );
+
+      if (userReaction === "dislike") {
+        setDislikes((prev) => prev - 1);
+        setUserReaction(null);
+      } else {
+        if (userReaction === "like") setLikes((prev) => prev - 1);
+        setDislikes((prev) => prev + 1);
+        setUserReaction("dislike");
+      }
+    } catch (err) {
+      console.error("Error handling dislike:", err);
     }
   };
 
@@ -210,11 +285,11 @@ const ReportView = () => {
       </div>
       <div className="view-container">
         {attachments.length > 0 && (
-            <div className="report-images">
-              {attachments.map((src, i) => (
-                  <img key={i} src={src} alt={`attachment-${i}`}/>
-              ))}
-            </div>
+          <div className="report-images">
+            {attachments.map((src, i) => (
+              <img key={i} src={src} alt={`attachment-${i}`} />
+            ))}
+          </div>
         )}
         <div className="report-header">
           <strong>{title}</strong>
@@ -229,14 +304,19 @@ const ReportView = () => {
 
         <div className="reaction-buttons">
           <button
-              className={`reaction-btn ${userReaction === "like" ? "active" : ""}`}
-              onClick={handleLike}
+            className={`reaction-btn ${userReaction === "like" ? "active" : ""}`}
+            onClick={(e) => {
+              handleLike();
+            }}
           >
             ❤️ {likes}
           </button>
+
           <button
-              className={`reaction-btn ${userReaction === "dislike" ? "active" : ""}`}
-              onClick={handleDislike}
+            className={`reaction-btn ${userReaction === "dislike" ? "active" : ""}`}
+            onClick={(e) => {
+              handleDislike();
+            }}
           >
             👎 {dislikes}
           </button>
@@ -244,28 +324,29 @@ const ReportView = () => {
 
         <div className="comments-section">
           <svg
-              width="566"
-              height="2"
-              viewBox="0 0 566 2"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+            width="566"
+            height="2"
+            viewBox="0 0 566 2"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2"/>
+            <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2" />
           </svg>
 
           <div className="comment-section-title">
             <h3 className="comment-title">Comment Section</h3>
             {comments.length > 2 && (
-                <button
-                    className="see-more-comments-btn"
-                    onClick={() => setShowAllComments(!showAllComments)}
-                >
-                  {showAllComments ? "Hide" : `See more (${comments.length - 2})`}
-                </button>
+              <button
+                className="see-more-comments-btn"
+                onClick={() => setShowAllComments(!showAllComments)}
+              >
+                {showAllComments ? "Hide" : `See more (${comments.length - 2})`}
+              </button>
             )}
           </div>
 
-          {(showAllComments ? comments : comments.slice(-2)).map((comment, index) => (
+          {(showAllComments ? comments : comments.slice(-2)).map(
+            (comment, index) => (
               <div className="comment" key={index}>
                 <div className="comment-upper">
                   <p className="comment-name">{comment.created_by}</p>
@@ -275,45 +356,48 @@ const ReportView = () => {
                       month: "2-digit",
                       year: "numeric",
                       hour: "2-digit",
-                      minute: "2-digit"
+                      minute: "2-digit",
                     })}
                   </p>
                 </div>
                 <div>
-                  <p className="comment-description">{comment.comment_content}</p>
+                  <p className="comment-description">
+                    {comment.comment_content}
+                  </p>
                 </div>
               </div>
-          ))}
+            )
+          )}
           <svg
-              width="566"
-              height="2"
-              viewBox="0 0 566 2"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+            width="566"
+            height="2"
+            viewBox="0 0 566 2"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2"/>
+            <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2" />
           </svg>
         </div>
 
         <div className="comment-input">
           <input
-              type="text"
-              id="commentText"
-              placeholder="Write a comment"
-              value={commentInput}
-              onChange={(e) => setCommentInput(e.target.value)}
+            type="text"
+            id="commentText"
+            placeholder="Write a comment"
+            value={commentInput}
+            onChange={(e) => setCommentInput(e.target.value)}
           />
           <button id="submitComment" onClick={handleAddComment}>
             <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                  d="M3.61088 12.8685C3.02755 12.8685 2.46172 12.641 2.01255 12.2035C1.28338 11.4918 1.10838 10.4418 1.56338 9.53182L2.50838 7.64182C2.70672 7.24516 2.70672 6.76682 2.50838 6.36432L1.56338 4.46849C1.10838 3.55849 1.28338 2.50849 2.01255 1.79682C2.74172 1.08516 3.79172 0.927656 4.69588 1.40599L11.4567 4.96432C12.2151 5.36099 12.6876 6.14266 12.6876 7.00016C12.6876 7.85766 12.2151 8.63932 11.4567 9.03599L4.69588 12.5943C4.34588 12.781 3.97838 12.8685 3.61088 12.8685Z"
-                  fill="white"
+                d="M3.61088 12.8685C3.02755 12.8685 2.46172 12.641 2.01255 12.2035C1.28338 11.4918 1.10838 10.4418 1.56338 9.53182L2.50838 7.64182C2.70672 7.24516 2.70672 6.76682 2.50838 6.36432L1.56338 4.46849C1.10838 3.55849 1.28338 2.50849 2.01255 1.79682C2.74172 1.08516 3.79172 0.927656 4.69588 1.40599L11.4567 4.96432C12.2151 5.36099 12.6876 6.14266 12.6876 7.00016C12.6876 7.85766 12.2151 8.63932 11.4567 9.03599L4.69588 12.5943C4.34588 12.781 3.97838 12.8685 3.61088 12.8685Z"
+                fill="white"
               />
             </svg>
           </button>
@@ -321,9 +405,12 @@ const ReportView = () => {
       </div>
 
       <EditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          reportData={reportData}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        reportData={reportData}
+        priorities={priorities}
+        types={types}
+        onSubmitted={fetchReport}
       />
     </div>
   );

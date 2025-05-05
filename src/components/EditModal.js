@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "../styles/ReportForm.css";
 import "../styles/EditModal.css";
 
@@ -6,23 +7,30 @@ const EditModal = ({
   isOpen,
   onClose,
   reportData,
-  priorities = [], // Default to empty array if undefined
-  types = [], // Default to empty array if undefined
-  photoInputs = [], // Default to empty array if undefined
+  priorities = [],
+  types = [],
+  photoInputs = [],
   previews,
   inputRefs,
   handlePhotoClick,
   handlePhotoChange,
-  submitReport,
   isSubmitting,
+  onSubmitted,
 }) => {
   const [editedTitle, setEditedTitle] = useState(reportData?.title || "");
   const [editedDescription, setEditedDescription] = useState(
     reportData?.description || ""
   );
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const priority_id = reportData.priority_id;
+  const problem_type_id = reportData.problem_type_id;
+  const [attachments, setAttachments] = useState({});
 
   useEffect(() => {
     if (reportData) {
+      console.log(reportData);
       setEditedTitle(reportData.title);
       setEditedDescription(reportData.description);
       setEditedPriority(reportData.priority_name);
@@ -32,38 +40,117 @@ const EditModal = ({
   }, [reportData]);
 
   const [editedPlace, setEditedPlace] = useState(reportData?.location || "");
-  const [editedPriority, setEditedPriority] = useState(reportData.priority_id);
+  const [editedPriority, setEditedPriority] = useState(
+    reportData?.priority_name || ""
+  );
   const [editedType, setEditedType] = useState(reportData?.problem_type || "");
 
   if (!isOpen) return null;
 
+  const submitReport = async () => {
+    setIsSubmit(true);
+    setError(null);
+
+    const newErrors = {};
+    if (!editedTitle.trim()) newErrors.title = "Required";
+    if (!editedPriority) newErrors.priority = "Required";
+    if (!editedType) newErrors.type = "Required";
+    if (!editedDescription.trim()) newErrors.description = "Required";
+    if (!editedPlace.trim()) newErrors.location = "Required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsSubmit(false);
+      return;
+    }
+    setErrors({});
+    try {
+      const Attachments = Object.values(attachments);
+
+      const body = {
+        Title: editedTitle.trim(),
+        Description: editedDescription.trim(),
+        Location: editedPlace.trim(),
+        PriorityId: parseInt(priority_id),
+        ProblemTypeId: parseInt(problem_type_id),
+        Attachments: Object.values(attachments),
+      };
+
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      await axios.post(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create",
+        body,
+        { headers }
+      );
+
+      alert("Report edited successfully");
+      if (onSubmitted) {
+        onSubmitted();
+      }
+      setEditedTitle("");
+      editedPriority("");
+      setEditedType("");
+      setEditedDescription("");
+      setEditedPlace("");
+      setErrors({});
+    } catch (err) {
+      console.error("Edit report failed", err);
+      setError("Не вдалося змінити звіт");
+    } finally {
+      setIsSubmit(false);
+    }
+  };
+
   return (
     <div className="modal-backdrop">
       <div className="report-form">
-        <h2 className="addRep">
-          <svg
-            width="36"
-            height="36"
-            viewBox="0 0 36 36"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect width="36" height="36" rx="7" fill="white" />
-            <path
-              d="M22 28.75H9C8.04 28.75 7.25 27.96 7.25 27V14C7.25 9.58 9.58 7.25 14 7.25H22C26.42 7.25 28.75 9.58 28.75 14V22C28.75 26.42 26.42 28.75 22 28.75ZM14 8.75C10.42 8.75 8.75 10.42 8.75 14V27C8.75 27.14 8.86 27.25 9 27.25H22C25.58 27.25 27.25 25.58 27.25 22V14C27.25 10.42 25.58 8.75 22 8.75H14Z"
-              fill="#292D32"
-            />
-            <path
-              d="M21.5 18.75H14.5C14.09 18.75 13.75 18.41 13.75 18C13.75 17.59 14.09 17.25 14.5 17.25H21.5C21.91 17.25 22.25 17.59 22.25 18C22.25 18.41 21.91 18.75 21.5 18.75Z"
-              fill="#292D32"
-            />
-            <path
-              d="M18 22.25C17.59 22.25 17.25 21.91 17.25 21.5V14.5C17.25 14.09 17.59 13.75 18 13.75C18.41 13.75 18.75 14.09 18.75 14.5V21.5C18.75 21.91 18.41 22.25 18 22.25Z"
-              fill="#292D32"
-            />
-          </svg>
-          Edit Report
-        </h2>
+        <div className="edit-report-form-upper">
+          <h2 className="addRep edit-form">
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="36" height="36" rx="7" fill="white" />
+              <path
+                d="M22 28.75H9C8.04 28.75 7.25 27.96 7.25 27V14C7.25 9.58 9.58 7.25 14 7.25H22C26.42 7.25 28.75 9.58 28.75 14V22C28.75 26.42 26.42 28.75 22 28.75ZM14 8.75C10.42 8.75 8.75 10.42 8.75 14V27C8.75 27.14 8.86 27.25 9 27.25H22C25.58 27.25 27.25 25.58 27.25 22V14C27.25 10.42 25.58 8.75 22 8.75H14Z"
+                fill="#292D32"
+              />
+              <path
+                d="M21.5 18.75H14.5C14.09 18.75 13.75 18.41 13.75 18C13.75 17.59 14.09 17.25 14.5 17.25H21.5C21.91 17.25 22.25 17.59 22.25 18C22.25 18.41 21.91 18.75 21.5 18.75Z"
+                fill="#292D32"
+              />
+              <path
+                d="M18 22.25C17.59 22.25 17.25 21.91 17.25 21.5V14.5C17.25 14.09 17.59 13.75 18 13.75C18.41 13.75 18.75 14.09 18.75 14.5V21.5C18.75 21.91 18.41 22.25 18 22.25Z"
+                fill="#292D32"
+              />
+            </svg>
+            Edit Report
+          </h2>
+          <button className="close-modal-btn" onClick={onClose}>
+            <svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect width="36" height="36" rx="7" fill="black" />
+              <path
+                d="M12 12L18 18M24 24L18 18M18 18L24 12M18 18L12 24"
+                stroke="white"
+                stroke-width="1.5"
+              />
+            </svg>
+          </button>
+        </div>
         <div className="oneline">
           <div className="input-group wide">
             <label>Name of problem</label>
@@ -84,7 +171,7 @@ const EditModal = ({
               <option value="">Select priority</option>
               {priorities.length > 0 ? (
                 priorities.map((p) => (
-                  <option key={p.id} value={p.id}>
+                  <option key={p.id} value={p.name}>
                     {p.name}
                   </option>
                 ))
@@ -104,7 +191,7 @@ const EditModal = ({
             <option value="">Select type</option>
             {types.length > 0 ? (
               types.map((t) => (
-                <option key={t.id} value={t.id}>
+                <option key={t.id} value={t.name}>
                   {t.name}
                 </option>
               ))
@@ -168,7 +255,6 @@ const EditModal = ({
         <button onClick={submitReport} disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : "Save Changes"}
         </button>
-        <button onClick={onClose}>Close</button>
       </div>
     </div>
   );

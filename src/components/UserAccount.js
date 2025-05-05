@@ -17,13 +17,26 @@ const UserAccount = () => {
   const openNotif = () => setIsOpenNotif(true);
   const closeNotif = () => setIsOpenNotif(false);
 
+  const [shouldRefreshReports, setShouldRefreshReports] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userData = user.data || {};
+  const firstName = userData.first_name || "";
+  const lastName = userData.last_name || "";
+
+  const formattedName = `${lastName} ${firstName}`.toUpperCase();
+
+  const handleReportSubmitted = () => {
+    setShouldRefreshReports(true);
+  };
+
   return (
     <div className="userAccount">
       <img src={myImage} alt="Description" className="top-pic" />
       <div className="container-useraccount">
         <div className="right-side">
           <div className="headline">
-            <h2 className="name">Welcome Back, GERUS ANDREANA!</h2>
+            <h2 className="name">Welcome Back, {formattedName}!</h2>
             <div className="icons">
               <button class="open-modal-btn" id="openModal" onClick={openModal}>
                 <svg
@@ -140,10 +153,13 @@ const UserAccount = () => {
             Whether it's a pothole, streetlight outage, or any other concern,
             your report will help us improve the city for everyone.
           </p>
-          <Tabs />
+          <Tabs
+            shouldRefresh={shouldRefreshReports}
+            onRefreshed={() => setShouldRefreshReports(false)}
+          />
         </div>
         <div className="left-side">
-          <ReportForm />
+          <ReportForm onSubmitted={handleReportSubmitted} />
         </div>
       </div>
     </div>

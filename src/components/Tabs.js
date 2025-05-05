@@ -3,54 +3,58 @@ import axios from "axios";
 import Report from "./Report";
 import "../styles/UserAccount.css";
 
-const Tabs = () => {
+const Tabs = ({ shouldRefresh, onRefreshed }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [counts, setCounts] = useState({ total_reports: 0, user_reports: 0 });
   const [allReports, setAllReports] = useState([]);
   const [userReports, setUserReports] = useState([]);
 
-  useEffect(() => {
+  const fetchAll = async () => {
     const token = localStorage.getItem("authToken");
     const headers = {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    axios
-      .get(
+    try {
+      const countRes = await axios.get(
         "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/count",
         { headers }
-      )
-      .then((res) => {
-        const data = res.data.Data || {};
-        setCounts({
-          total_reports: data.total_reports || 0,
-          user_reports: data.user_reports || 0,
-        });
-      })
-      .catch((err) => console.error("Count error", err));
+      );
+      const countData = countRes.data.Data || {};
+      setCounts({
+        total_reports: countData.total_reports || 0,
+        user_reports: countData.user_reports || 0,
+      });
 
-    axios
-      .get("http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report", {
-        headers,
-      })
-      .then((res) => {
-        const items = res.data.Data || [];
-        setAllReports(Array.isArray(items) ? items : []);
-      })
-      .catch((err) => console.error("All reports error", err));
+      const allRes = await axios.get(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report",
+        { headers }
+      );
+      const allItems = allRes.data.Data || [];
+      setAllReports(Array.isArray(allItems) ? allItems : []);
 
-    axios
-      .get(
+      const userRes = await axios.get(
         "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/user-reports",
         { headers }
-      )
-      .then((res) => {
-        const items = res.data.Data || [];
-        setUserReports(Array.isArray(items) ? items : []);
-      })
-      .catch((err) => console.error("User reports error", err));
+      );
+      const userItems = userRes.data.Data || [];
+      setUserReports(Array.isArray(userItems) ? userItems : []);
+    } catch (err) {
+      console.error("Fetching reports failed", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAll();
   }, []);
+
+  useEffect(() => {
+    if (shouldRefresh) {
+      fetchAll();
+      onRefreshed();
+    }
+  }, [shouldRefresh]);
 
   return (
     <div>

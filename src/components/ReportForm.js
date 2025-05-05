@@ -2,7 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "../styles/ReportForm.css";
 
-const ReportForm = () => {
+const ReportForm = ({ onSubmitted }) => {
+  const [title, setTitle] = useState("");
+  const [priorityId, setPriorityId] = useState("");
+  const [typeId, setTypeId] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
   const [photoInputs, setPhotoInputs] = useState([0]);
   const [previews, setPreviews] = useState({});
   const [attachments, setAttachments] = useState({});
@@ -11,6 +16,7 @@ const ReportForm = () => {
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefs = useRef({});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -86,21 +92,33 @@ const ReportForm = () => {
   const submitReport = async () => {
     setIsSubmitting(true);
     setError(null);
+
+    const newErrors = {};
+    if (!title.trim()) newErrors.title = "Required";
+    if (!priorityId) newErrors.priority = "Required";
+    if (!typeId) newErrors.type = "Required";
+    if (!description.trim()) newErrors.description = "Required";
+    if (!location.trim()) newErrors.location = "Required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // clear previous errors if valid
+    setErrors({});
+
     try {
-      const title = document.getElementById("problemName").value;
-      const priorityId = parseInt(document.getElementById("status").value, 10);
-      const problemTypeId = parseInt(document.getElementById("type").value, 10);
-      const description = document.getElementById("description").value;
-      const location = document.getElementById("placeHapp").value;
       const Attachments = Object.values(attachments);
 
       const body = {
-        Title: title,
-        Description: description,
-        Location: location,
-        PriorityId: priorityId,
-        ProblemTypeId: problemTypeId,
-        Attachments,
+        Title: title.trim(),
+        Description: description.trim(),
+        Location: location.trim(),
+        PriorityId: parseInt(priorityId),
+        ProblemTypeId: parseInt(typeId),
+        Attachments: Object.values(attachments),
       };
 
       const token = localStorage.getItem("authToken");
@@ -116,6 +134,18 @@ const ReportForm = () => {
       );
 
       alert("Report created successfully");
+      if (onSubmitted) {
+        onSubmitted();
+      }
+      setTitle("");
+      setPriorityId("");
+      setTypeId("");
+      setDescription("");
+      setLocation("");
+      setPreviews({});
+      setAttachments({});
+      setPhotoInputs([0]);
+      setErrors({});
     } catch (err) {
       console.error("Create report failed", err);
       setError("Не вдалося створити звіт");
@@ -155,11 +185,19 @@ const ReportForm = () => {
       <div className="oneline">
         <div className="input-group wide">
           <label>Name of problem</label>
-          <input type="text" id="problemName" />
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          {errors.title && <span className="input-error">{errors.title}</span>}
         </div>
         <div className="input-group wide">
           <label>Priority of Problem</label>
-          <select id="status">
+          <select
+            value={priorityId}
+            onChange={(e) => setPriorityId(e.target.value)}
+          >
             <option value="">Select priority</option>
             {priorities.map((p) => (
               <option key={p.id} value={p.id}>
@@ -167,12 +205,16 @@ const ReportForm = () => {
               </option>
             ))}
           </select>
+
+          {errors.priority && (
+            <span className="input-error">{errors.priority}</span>
+          )}
         </div>
       </div>
 
       <div className="input-group full-width">
         <label>Type of Problem</label>
-        <select id="type">
+        <select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
           <option value="">Select type</option>
           {types.map((t) => (
             <option key={t.id} value={t.id}>
@@ -180,16 +222,33 @@ const ReportForm = () => {
             </option>
           ))}
         </select>
+
+        {errors.type && <span className="input-error">{errors.type}</span>}
       </div>
 
       <div className="input-group full-width">
         <label>Description</label>
-        <textarea id="description" rows={3} />
+        <textarea
+          rows={3}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        {errors.description && (
+          <span className="input-error">{errors.description}</span>
+        )}
       </div>
 
       <div className="input-group full-width">
         <label>Place of happening</label>
-        <input type="text" id="placeHapp" />
+        <input
+          type="text"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
+
+        {errors.location && (
+          <span className="input-error">{errors.location}</span>
+        )}
       </div>
 
       <div className="input-group full-width">

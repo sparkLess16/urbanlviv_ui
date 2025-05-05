@@ -117,3 +117,10 @@ button {
   cursor: pointer;
   transition: 0.3s;
 }
+
+.input-error {
+  color: red;
+  font-size: 10px;
+  display: block;
+  margin-top: 4px;
+}

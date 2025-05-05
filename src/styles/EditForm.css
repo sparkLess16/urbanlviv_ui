@@ -23,7 +23,6 @@ h2 {
 
 .input-group {
   display: flex;
-  gap: 10px;
   margin-bottom: 15px;
 }
 
@@ -90,4 +89,18 @@ input:focus {
 .eye-button:hover {
   color: #000;
   transform: scale(1.1);
+}
+
+.close-modal-btn {
+  height: 36px;
+  width: 36px;
+  background: none;
+  padding: 0;
+}
+
+.edit-report-form-upper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
