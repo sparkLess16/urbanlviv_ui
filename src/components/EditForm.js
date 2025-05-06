@@ -1,16 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/EditForm.css";
 
 const EditForm = () => {
   const [formData, setFormData] = useState({
-    name: "John",
-    surname: "Doe",
-    email: "john.doe@example.com",
-    phone: "+123456789",
-    password: "password123",
+    name: "",
+    surname: "",
+    email: "",
+    phone: "",
+    password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log(storedUser);
+
+    setFormData({
+      name: storedUser.data?.first_name || "",
+      surname: storedUser.data?.last_name || "",
+      email: storedUser.data?.work_email || "",
+      // phone: storedUser.data?.phone || "",
+      password: storedUser.data?.hashed_password || "",
+    });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +47,7 @@ const EditForm = () => {
     <div className="form-container">
       <form onSubmit={handleSubmit}>
         <div className="input-group">
-          <div className="input-field">
+          <div className="input-field edit-form">
             <label htmlFor="name">Name</label>
             <input
               type="text"

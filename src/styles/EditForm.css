@@ -23,13 +23,13 @@ h2 {
 
 .input-group {
   display: flex;
-  margin-bottom: 15px;
 }
 
 .input-field {
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-bottom: 12px;
 }
 
 label {

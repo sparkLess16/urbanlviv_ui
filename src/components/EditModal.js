@@ -108,9 +108,9 @@ const EditModal = ({
 
   return (
     <div className="modal-backdrop">
-      <div className="report-form">
+      <div className="edit-report-form">
         <div className="edit-report-form-upper">
-          <h2 className="addRep edit-form">
+          <h2 className="addRep edit-modal">
             <svg
               width="36"
               height="36"

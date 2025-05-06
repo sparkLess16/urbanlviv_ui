@@ -11,6 +11,19 @@
   z-index: 1000;
 }
 
-.edit-form {
+.edit-modal {
   margin: 0;
+}
+
+.edit-report-form {
+  position: sticky;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
