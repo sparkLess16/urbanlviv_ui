@@ -1,0 +1,54 @@
+.toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 0.5rem 1rem;
+  z-index: 2000;
+}
+
+/* червона смужка зліва */
+.toast--error { border-left: 4px solid #ef4444; }
+.toast--success { border-left: 4px solid #22c55e; }
+.toast--info    { border-left: 4px solid #3b82f6; }
+
+/* обгортка іконки в кольоровому кружечку */
+.toast__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;          /* для error; success/info можна перекрити в JS */
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* заголовок */
+.toast__label {
+  font-weight: 600;
+  margin-left: 0.75rem;
+  color: #111111;
+}
+
+/* текст повідомлення */
+.toast__message {
+  color: #333333;
+  margin-left: 0.5rem;
+}
+
+/* кнопка закриття */
+.toast__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666666;
+  padding: 0;
+}
