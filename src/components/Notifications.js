@@ -43,7 +43,7 @@ const Notifications = () => {
           <div key={notif.notification_id} className="notifications-block">
             <div className="one">
               <p className="title">
-                Report {notif.report_name} has been reviewed!
+                {notif.notification_title}
               </p>
               <p className="description">{notif.notification_content}</p>
             </div>

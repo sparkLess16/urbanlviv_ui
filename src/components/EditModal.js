@@ -68,6 +68,7 @@ const EditModal = ({
       const Attachments = Object.values(attachments);
 
       const body = {
+        ReportId : reportData.report_id.toString(),
         Title: editedTitle.trim(),
         Description: editedDescription.trim(),
         Location: editedPlace.trim(),
@@ -83,7 +84,7 @@ const EditModal = ({
       };
 
       await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/create",
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/update",
         body,
         { headers }
       );

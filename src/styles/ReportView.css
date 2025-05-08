@@ -26,9 +26,21 @@
   padding: 12px 16px;
 }
 
+.cancel-btn {
+  font-size: 14px;
+  padding: 12px 16px;
+  background: #c10000;
+}
+
 .view-actions {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.actions-right {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
 }
