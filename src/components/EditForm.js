@@ -41,6 +41,16 @@ const EditForm = () => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     alert("User information saved!");
+
+    // HTTP POST METHOD
+    //      "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/auth/update"
+    // NEED TO PASS NEXT DATA
+    // public string FirstName { get; set; }
+    // public string LastName { get; set; }
+    // public string Email { get; set; }
+    // public string? Phone { get; set; }
+    // public string Password { get; set; }
+    // public string ConfirmPassword { get; set; }
   };
 
   return (
