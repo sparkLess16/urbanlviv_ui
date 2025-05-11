@@ -17,11 +17,13 @@ const Report = ({ data }) => {
   } = data;
 
   const formattedDate = new Date(created_dt).toLocaleDateString();
-  const attachments = Array.isArray(attachment_url)
-    ? attachment_url
-    : attachment_url
-      ? [attachment_url]
+  const attachments = attachment_url
+      ? (Array.isArray(attachment_url)
+              ? attachment_url
+              : [attachment_url]
+      ).map(item => item.Content)
       : [];
+
 
   const [comments, setComments] = useState(data.comments || []);
   const [commentInput, setCommentInput] = useState("");
