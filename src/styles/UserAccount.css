@@ -27,7 +27,7 @@ p {
   display: flex;
   gap: 16px;
   border-bottom: 1px solid #e0e0e0;
-  max-width: 196px;
+  max-width: 177px;
 }
 
 .tab {
@@ -77,6 +77,10 @@ p {
 
 .left-side {
   display: block;
+  position: sticky;
+  top: 60px;
+  align-self: flex-start;
+  max-height: fit-content;
 }
 
 .headline {

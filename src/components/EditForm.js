@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "../styles/EditForm.css";
+import ConfirmDialog from "./ConfirmDialog";
 
-const EditForm = () => {
+const EditForm = ({ onClose, onUpdate }) => {
   const [formData, setFormData] = useState({
     name: "",
     surname: "",
@@ -11,16 +12,17 @@ const EditForm = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    console.log(storedUser);
 
     setFormData({
       name: storedUser.data?.first_name || "",
       surname: storedUser.data?.last_name || "",
       email: storedUser.data?.work_email || "",
-      // phone: storedUser.data?.phone || "",
+      phone: storedUser.data?.phone || "",
       password: storedUser.data?.hashed_password || "",
     });
   }, []);
@@ -37,20 +39,64 @@ const EditForm = () => {
     setShowPassword((prevShowPassword) => !prevShowPassword);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("User information saved!");
 
-    // HTTP POST METHOD
-    //      "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/auth/update"
-    // NEED TO PASS NEXT DATA
-    // public string FirstName { get; set; }
-    // public string LastName { get; set; }
-    // public string Email { get; set; }
-    // public string? Phone { get; set; }
-    // public string Password { get; set; }
-    // public string ConfirmPassword { get; set; }
+    const payload = {
+      FirstName: formData.name,
+      LastName: formData.surname,
+      Email: formData.email,
+      Phone: formData.phone,
+      Password: formData.password,
+      ConfirmPassword: formData.password,
+    };
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      const response = await fetch(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/auth/update",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Response:", data);
+      setShowSuccessDialog(true);
+
+      const current = JSON.parse(localStorage.getItem("user") || "{}");
+
+      const updatedUser = {
+        ...current,
+        data: {
+          ...current.data,
+          ...data.data,
+          first_name: formData.name,
+          last_name: formData.surname,
+          work_email: formData.email,
+          phone: formData.phone,
+          hashed_password: formData.password,
+        },
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      // if (onUpdate) onUpdate();
+      // if (onClose) onClose();
+    } catch (error) {
+      console.error("Update failed:", error);
+      setShowErrorDialog(true);
+    }
   };
 
   return (
@@ -116,8 +162,6 @@ const EditForm = () => {
               className="eye-button"
             >
               {showPassword ? (
-                // Open eye SVG
-
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="22"
@@ -133,7 +177,6 @@ const EditForm = () => {
                   <path d="M9.53 9.53A3.5 3.5 0 0 0 12 16a3.5 3.5 0 0 0 2.47-6.47" />
                 </svg>
               ) : (
-                // Closed eye SVG (eye-off)
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="22"
@@ -166,6 +209,39 @@ const EditForm = () => {
           Save
         </button>
       </form>
+      {showSuccessDialog && (
+        <ConfirmDialog
+          message={["User information successfully updated!"]}
+          buttons={[
+            {
+              label: "Okay",
+              variant: "primary",
+              onClick: () => {
+                setShowSuccessDialog(false);
+                if (onUpdate) onUpdate();
+                if (onClose) onClose();
+              },
+            },
+          ]}
+        />
+      )}
+
+      {showSuccessDialog && (
+        <ConfirmDialog
+          message={["User information successfully updated!"]}
+          buttons={[
+            {
+              label: "Okay",
+              variant: "primary",
+              onClick: () => {
+                setShowSuccessDialog(false);
+                if (onUpdate) onUpdate();
+                if (onClose) onClose();
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };

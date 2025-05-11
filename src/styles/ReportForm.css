@@ -8,6 +8,7 @@
   max-width: 500px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 .wide {
@@ -59,6 +60,7 @@ textarea {
 
 textarea {
   resize: none;
+  font-family: "Poppins", sans-serif;
 }
 
 .photo-container {

@@ -24,7 +24,7 @@ const UserAccount = () => {
   const firstName = userData.first_name || "";
   const lastName = userData.last_name || "";
 
-  const formattedName = `${lastName} ${firstName}`.toUpperCase();
+  const formattedName = `${firstName} ${lastName}`.toUpperCase();
 
   const handleReportSubmitted = () => {
     setShouldRefreshReports(true);
@@ -102,7 +102,10 @@ const UserAccount = () => {
                         />
                       </svg>
                     </button>
-                    <EditForm />
+                    <EditForm
+                      onClose={closeModal}
+                      onUpdate={() => window.location.reload()}
+                    />
                   </div>
                 </div>
               )}
