@@ -5,12 +5,14 @@ import UserAccountPage from "./pages/UserAccountPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ReportDetailPage from "./pages/ReportDetailPage";
+import RedirectOnStart from "./components/RedirectOnStart";
 import "./App.css";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<RedirectOnStart />} />
         <Route
           path="/login"
           element={

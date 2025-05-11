@@ -155,7 +155,7 @@ const EditForm = ({ onClose, onUpdate }) => {
 
         <div className="input-field">
           <div className="label-with-eye">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">New Password</label>
             <button
               type="button"
               onClick={togglePasswordVisibility}
@@ -199,7 +199,6 @@ const EditForm = ({ onClose, onUpdate }) => {
             type={showPassword ? "text" : "password"}
             id="password"
             name="password"
-            value={formData.password}
             onChange={handleChange}
             required
           />

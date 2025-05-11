@@ -49,3 +49,18 @@
   display: flex;
   gap: 12px;
 }
+
+.report-location-priority {
+  display: flex;
+  gap: 40px;
+}
+
+.report-type {
+  font-size: 12px;
+  color: #cbcbcb;
+  padding-bottom: 4px;
+  margin: 0;
+}
+.report-header {
+  margin-top: 0;
+}

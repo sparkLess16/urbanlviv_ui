@@ -14,7 +14,9 @@ const ReportView = () => {
   const [showAllComments, setShowAllComments] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [priorities, setPriorities] = useState([]);
+  const [priorityName, setpriorityName] = useState("");
   const [types, setTypes] = useState([]);
+  const [type, setType] = useState("");
   const [userReaction, setUserReaction] = useState(null);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
@@ -53,10 +55,11 @@ const ReportView = () => {
 
   useEffect(() => {
     if (!reportData) return;
-    console.log(reportData);
 
     setLikes(reportData.total_likes || 0);
     setDislikes(reportData.total_dislikes || 0);
+    setpriorityName(reportData.priority_name || "");
+    setType(reportData.problem_type);
     setUserReaction(
       reportData.user_liked
         ? "like"
@@ -64,6 +67,7 @@ const ReportView = () => {
           ? "dislike"
           : null
     );
+    console.log(reportData);
   }, [reportData]);
 
   useEffect(() => {
@@ -354,6 +358,7 @@ const ReportView = () => {
       </div>
 
       <div className="view-container">
+        <div className="report-status">{status_name}</div>
         {attachments.length > 0 && (
           <div className="report-images">
             {attachments.map((src, i) => (
@@ -361,16 +366,18 @@ const ReportView = () => {
             ))}
           </div>
         )}
+        <p className="report-type">{type}</p>
         <div className="report-header">
           <strong>{title}</strong>
           <span className="report-date">{formattedDate}</span>
         </div>
-        <div className="report-status">{status_name}</div>
 
         <p className="report-description">{description}</p>
 
-        <p className="report-location-title">📍 Where</p>
-        <p className="report-location">{location}</p>
+        <div className="report-location-priority">
+          <p className="report-location">📍 {location}</p>
+          <p className="report-priority"> ⚠️ {priorityName}</p>
+        </div>
 
         <div className="reaction-buttons">
           <button

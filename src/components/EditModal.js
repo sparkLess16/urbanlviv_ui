@@ -176,6 +176,7 @@ const EditModal = ({
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
               />
+              {errors.title && <p className="error-message">{errors.title}</p>}
             </div>
 
             <div className="input-group wide">
@@ -184,13 +185,15 @@ const EditModal = ({
                 value={editedPriority}
                 onChange={(e) => setEditedPriority(e.target.value)}
               >
-                <option value="">Select priority</option>
                 {priorities.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
                 ))}
               </select>
+              {errors.priority && (
+                <p className="error-message">{errors.priority}</p>
+              )}
             </div>
           </div>
 
@@ -200,13 +203,13 @@ const EditModal = ({
               value={editedType}
               onChange={(e) => setEditedType(e.target.value)}
             >
-              <option value="">Select type</option>
               {types.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
                 </option>
               ))}
             </select>
+            {errors.type && <p className="error-message">{errors.type}</p>}
           </div>
 
           <div className="input-group full-width">
@@ -216,6 +219,9 @@ const EditModal = ({
               value={editedDescription}
               onChange={(e) => setEditedDescription(e.target.value)}
             />
+            {errors.description && (
+              <p className="error-message">{errors.description}</p>
+            )}
           </div>
 
           <div className="input-group full-width">
@@ -225,6 +231,9 @@ const EditModal = ({
               value={editedPlace}
               onChange={(e) => setEditedPlace(e.target.value)}
             />
+            {errors.location && (
+              <p className="error-message">{errors.location}</p>
+            )}
           </div>
 
           <div className="input-group full-width">
