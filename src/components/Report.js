@@ -18,12 +18,10 @@ const Report = ({ data }) => {
 
   const formattedDate = new Date(created_dt).toLocaleDateString();
   const attachments = attachment_url
-      ? (Array.isArray(attachment_url)
-              ? attachment_url
-              : [attachment_url]
-      ).map(item => item.Content)
-      : [];
-
+    ? (Array.isArray(attachment_url) ? attachment_url : [attachment_url]).map(
+        (item) => item.Content
+      )
+    : [];
 
   const [comments, setComments] = useState(data.comments || []);
   const [commentInput, setCommentInput] = useState("");

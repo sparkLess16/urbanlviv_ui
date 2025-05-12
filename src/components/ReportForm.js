@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import "../styles/ReportForm.css";
+import ConfirmDialog from "./ConfirmDialog";
 
 const ReportForm = ({ onSubmitted }) => {
   const [title, setTitle] = useState("");
@@ -17,6 +18,7 @@ const ReportForm = ({ onSubmitted }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefs = useRef({});
   const [errors, setErrors] = useState({});
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -133,7 +135,7 @@ const ReportForm = ({ onSubmitted }) => {
         { headers }
       );
 
-      alert("Report created successfully");
+      setShowConfirm(true);
       if (onSubmitted) {
         onSubmitted();
       }
@@ -281,6 +283,21 @@ const ReportForm = ({ onSubmitted }) => {
       <button onClick={submitReport} disabled={isSubmitting}>
         {isSubmitting ? "Submitting..." : "Add"}
       </button>
+      {showConfirm && (
+        <ConfirmDialog
+          message={["Report created successfully"]}
+          buttons={[
+            {
+              label: "Okay",
+              variant: "danger",
+              onClick: () => {
+                setShowConfirm(false);
+                if (onSubmitted) onSubmitted();
+              },
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };

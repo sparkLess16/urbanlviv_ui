@@ -155,8 +155,8 @@ p {
 
 .modal-overlay {
   position: fixed;
-  top: -80px;
-  left: -250px;
+  top: -50px;
+  left: -220px;
   width: 100vw;
   height: 100vh;
   display: flex;

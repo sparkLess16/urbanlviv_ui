@@ -23,6 +23,7 @@ const ReportView = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showSuccessCancelDialog, setShowSuccessCancelDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [attachments, setAttachments] = useState([]);
 
   const userId = +JSON.parse(localStorage.getItem("user") || "{}")?.data
     ?.user_id;
@@ -44,10 +45,18 @@ const ReportView = () => {
         `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/details`,
         { headers }
       );
+      const attachment = await axios.get(
+        `http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/${reportId}/attachments`,
+        { headers }
+      );
 
       const raw = res.data.Data ?? res.data.data;
       const rpt = Array.isArray(raw) ? raw[0] : (raw ?? {});
       setReportData(rpt);
+
+      const files = attachment.data?.Data || [];
+      setAttachments(files);
+      console.log("📎 Attachments:", files);
     } catch (err) {
       console.error("Error fetching report:", err);
     }
@@ -67,7 +76,6 @@ const ReportView = () => {
           ? "dislike"
           : null
     );
-    console.log(reportData);
   }, [reportData]);
 
   useEffect(() => {
@@ -155,24 +163,12 @@ const ReportView = () => {
     return <div className="report-view-container">Loading...</div>;
   }
 
-  const {
-    status_name,
-    title,
-    created_dt,
-    description,
-    location,
-    attachment_url,
-    created_by,
-  } = reportData;
+  const { status_name, title, created_dt, description, location, created_by } =
+    reportData;
 
   const isReportCreator = created_by === userId;
   const isReportEditable = ![3, 4, 5].includes(reportData.status_id);
   const formattedDate = new Date(created_dt).toLocaleDateString();
-  const attachments = Array.isArray(attachment_url)
-    ? attachment_url
-    : attachment_url
-      ? [attachment_url]
-      : [];
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) return;
@@ -361,11 +357,22 @@ const ReportView = () => {
         <div className="report-status">{status_name}</div>
         {attachments.length > 0 && (
           <div className="report-images">
-            {attachments.map((src, i) => (
-              <img key={i} src={src} alt={`attachment-${i}`} />
-            ))}
+            {attachments.length > 0 && (
+              <div className="report-images">
+                {attachments.map((file, i) => (
+                  <div key={i}>
+                    <img
+                      src={file.file_object.Content}
+                      alt={file.description || `attachment-${i}`}
+                      className="report-image"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+
         <p className="report-type">{type}</p>
         <div className="report-header">
           <strong>{title}</strong>

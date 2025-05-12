@@ -4,6 +4,9 @@
   margin: 0;
   padding: 0;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .description {
@@ -18,4 +21,26 @@
   padding: 16px;
   border: 1px solid #f0f0f0;
   border-radius: 16px;
+  margin-bottom: 8px;
+}
+.notification-list {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.notification-list.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.show-more-btn {
+  background: none;
+  border: none;
+  color: #bfbfbf;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+  text-decoration: underline;
+  margin: 0 auto;
 }

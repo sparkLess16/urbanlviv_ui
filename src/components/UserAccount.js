@@ -110,7 +110,7 @@ const UserAccount = () => {
                 </div>
               )}
 
-              <button class="open-modal-btn" id="openModal" onClick={openNotif}>
+              <button class="open-modal-btn" id="openNotif" onClick={openNotif}>
                 <svg
                   width="36"
                   height="36"

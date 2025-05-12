@@ -6,6 +6,7 @@ const Notifications = () => {
   const [notificationsData, setNotificationsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -21,8 +22,7 @@ const Notifications = () => {
           { headers }
         );
 
-        setNotificationsData(data.Data);
-        console.log(data.Data);
+        setNotificationsData(data.Data || []);
       } catch (err) {
         console.error(err);
         setError(err);
@@ -34,21 +34,35 @@ const Notifications = () => {
     fetchNotifications();
   }, []);
 
+  const visibleNotifications = showAll
+    ? notificationsData
+    : notificationsData.slice(0, 2); // show only 2 latest if not expanded
+
   return (
-    <div className="notification-list">
-      {notificationsData.length === 0 ? (
+    <div className={`notification-list ${!loading ? "visible" : ""}`}>
+      {loading ? null : error ? (
+        <p>Error loading notifications.</p>
+      ) : notificationsData.length === 0 ? (
         <p>No notifications yet.</p>
       ) : (
-        notificationsData.map((notif) => (
-          <div key={notif.notification_id} className="notifications-block">
-            <div className="one">
-              <p className="title">
-                {notif.notification_title}
-              </p>
-              <p className="description">{notif.notification_content}</p>
+        <>
+          {visibleNotifications.map((notif) => (
+            <div key={notif.notification_id} className="notifications-block">
+              <div className="one">
+                <p className="title">{notif.notification_title}</p>
+                <p className="description">{notif.notification_content}</p>
+              </div>
             </div>
-          </div>
-        ))
+          ))}
+          {notificationsData.length > 2 && (
+            <button
+              className="show-more-btn"
+              onClick={() => setShowAll((prev) => !prev)}
+            >
+              {showAll ? "Show Less" : "Show More"}
+            </button>
+          )}
+        </>
       )}
     </div>
   );
