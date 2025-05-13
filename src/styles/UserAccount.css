@@ -27,7 +27,7 @@ p {
   display: flex;
   gap: 16px;
   border-bottom: 1px solid #e0e0e0;
-  max-width: 177px;
+  max-width: 200px;
 }
 
 .tab {
@@ -155,7 +155,7 @@ p {
 
 .modal-overlay {
   position: fixed;
-  top: -50px;
+  top: 56px;
   left: -220px;
   width: 100vw;
   height: 100vh;
@@ -170,4 +170,32 @@ p {
   font-size: 16px;
   margin: 0;
   margin-bottom: 12px;
+}
+
+.notif-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notif-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: rgb(0, 0, 0);
+  color: white;
+  font-size: 10px;
+  font-weight: 400;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.notif-scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.notif-scrollable::-webkit-scrollbar {
+  display: none;
 }
