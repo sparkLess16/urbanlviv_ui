@@ -7,6 +7,7 @@ const Report = ({ data }) => {
   const navigate = useNavigate();
   const {
     status_name,
+      status_color,
     title,
     created_dt,
     description,
@@ -153,7 +154,7 @@ const Report = ({ data }) => {
         )
       }
     >
-      <div className="report-status">{status_name}</div>
+      <div className="report-status"   style={{ backgroundColor: status_color }}>{status_name}</div>
       <div className="report-header">
         <strong>{title}</strong>
         <span className="report-date">{formattedDate}</span>

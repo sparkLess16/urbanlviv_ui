@@ -163,7 +163,7 @@ const ReportView = () => {
     return <div className="report-view-container">Loading...</div>;
   }
 
-  const { status_name, title, created_dt, description, location, created_by } =
+  const { status_name, status_color,  title, created_dt, description, location, created_by } =
     reportData;
 
   const isReportCreator = created_by === userId;
@@ -354,7 +354,7 @@ const ReportView = () => {
       </div>
 
       <div className="view-container">
-        <div className="report-status">{status_name}</div>
+        <div   style={{ backgroundColor: status_color }} className="report-status">{status_name}</div>
         {attachments.length > 0 && (
           <div className="report-images">
             {attachments.length > 0 && (
