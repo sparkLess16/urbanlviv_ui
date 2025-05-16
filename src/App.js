@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 import ReportDetailPage from "./pages/ReportDetailPage";
 import RedirectOnStart from "./components/RedirectOnStart";
 import "./App.css";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   return (
@@ -48,6 +49,15 @@ function App() {
                 <ReportDetailPage />
               </Layout>
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/adminPanel"
+          element={
+            <Layout>
+              <AdminPanel />
+            </Layout>
           }
         />
       </Routes>
