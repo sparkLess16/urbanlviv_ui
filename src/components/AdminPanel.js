@@ -3,18 +3,24 @@ import axios from "axios";
 import myImg from "../assets/admin-img.png";
 import "../styles/AdminPanel.css";
 import TruncatedCell from "./TruncatedCell";
+import { Link } from "react-router-dom";
+import ConfirmDialog from "./ConfirmDialog";
 
 const AdminPanel = () => {
   const [priorities, setPriorities] = useState([]);
-  const [types, setTypes] = useState([]);
+  const [numbers, setNumbers] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [counts, setCounts] = useState({ total_reports: 0, user_reports: 0 });
   const [allReports, setAllReports] = useState([]);
-
+  const [showModal, setShowModal] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState(null);
+  const [selectedStatusId, setSelectedStatusId] = useState(null);
+  const [adminResponse, setAdminResponse] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const token = localStorage.getItem("authToken");
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-  // Load priorities,statuses
+  // Load priorities,statuses,numbers
   useEffect(() => {
     axios
       .get(
@@ -50,6 +56,26 @@ const AdminPanel = () => {
       .catch((err) => {
         console.error("Failed to load statuses", err);
       });
+
+    axios
+      .get(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/admin/dashboard",
+        { headers }
+      )
+      .then((res) => {
+        const stats = res.data?.data;
+        if (stats) {
+          const valuesArray = [
+            stats.total_users,
+            stats.total_reports,
+            stats.in_progress_reports,
+          ];
+          setNumbers(valuesArray);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load numbers", err);
+      });
   }, []);
 
   // Fetch all reports
@@ -59,23 +85,13 @@ const AdminPanel = () => {
 
   const fetchAll = async () => {
     try {
-      const countRes = await axios.get(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report/count",
-        { headers }
-      );
-      const countData = countRes.data.Data || {};
-      setCounts({
-        total_reports: countData.total_reports || 0,
-        user_reports: countData.user_reports || 0,
-      });
-
       const allRes = await axios.get(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/report",
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/admin/reports",
         { headers }
       );
-      const allItems = allRes.data.Data || [];
+      const allItems = allRes.data.data || [];
+      console.log(allItems);
       setAllReports(Array.isArray(allItems) ? allItems : []);
-      console.log(Array.isArray(allItems) ? allItems : []);
     } catch (err) {
       console.error("Fetching reports failed", err);
     }
@@ -104,24 +120,24 @@ const AdminPanel = () => {
     }
   };
 
-  const handleStatusChange = async (
-    reportId,
-    newStatusId,
-    ReasonOfChanges = "test"
-  ) => {
+  const handleStatusChange = (reportId, newStatusId) => {
+    const selected = statuses.find((s) => s.id === parseInt(newStatusId, 10));
+    const name = selected?.name?.toLowerCase();
+
+    setSelectedReportId(reportId);
+    setSelectedStatusId(newStatusId);
+
+    if (name === "resolved" || name === "rejected") {
+      setShowModal(true);
+    } else {
+      sendStatusUpdate(reportId, newStatusId);
+    }
+  };
+
+  const sendStatusUpdate = async (reportId, statusId, reason) => {
     try {
       const selectedStatus = statuses.find(
-        (status) => status.id === parseInt(newStatusId, 10)
-      );
-      console.log(reportId, newStatusId, ReasonOfChanges, selectedStatus);
-      await axios.post(
-        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/admin/update-status",
-        {
-          ReportId: reportId.toString(),
-          StatusId: newStatusId,
-          ReasonOfChanges: ReasonOfChanges.toString(),
-        },
-        { headers }
+        (status) => status.id === parseInt(statusId, 10)
       );
 
       setAllReports((prev) =>
@@ -129,12 +145,26 @@ const AdminPanel = () => {
           r.report_id === reportId
             ? {
                 ...r,
-                status_id: parseInt(newStatusId, 10),
+                status_id: parseInt(statusId, 10),
                 status_name: selectedStatus,
               }
             : r
         )
       );
+
+      setShowModal(false);
+      setShowConfirm(true);
+      await axios.post(
+        "http://urbanlviv-1627063708.us-east-1.elb.amazonaws.com/admin/update-status",
+        {
+          ReportId: reportId.toString(),
+          StatusId: statusId,
+          ReasonOfChanges: reason, // just in case
+        },
+        { headers }
+      );
+
+      setAdminResponse(""); // Always reset the textarea
     } catch (error) {
       console.error("Failed to update status", error);
     }
@@ -187,7 +217,7 @@ const AdminPanel = () => {
                   </svg>
                   <p className="body-admin">Total Accounts</p>
                 </div>
-                <p className="big-number">240</p>
+                <p className="big-number">{numbers[0]}</p>
               </div>
             </div>
 
@@ -220,7 +250,7 @@ const AdminPanel = () => {
                   </svg>
                   <p className="body-admin">Total Reports</p>
                 </div>
-                <p className="big-number">240</p>
+                <p className="big-number">{numbers[1]}</p>
               </div>
             </div>
 
@@ -250,19 +280,12 @@ const AdminPanel = () => {
 
                   <p className="body-admin">Reports In progress</p>
                 </div>
-                <p className="big-number">240</p>
+                <p className="big-number">{numbers[2]}</p>
               </div>
             </div>
           </div>
         </div>
         <div className="bottom-content">
-          <div className="bottom-content-upper">
-            <div className="bottom-content-text-left">
-              <p className="admin-upper">All report information</p>
-              <p className="body-admin">View full report details here</p>
-            </div>
-            <button className="CTA">Add New Report</button>
-          </div>
           <div className="bottom-content-table">
             <table className="styled-table">
               <thead>
@@ -271,17 +294,20 @@ const AdminPanel = () => {
                   <th>NAME</th>
                   <th>DATE</th>
                   <th>PRIORITY</th>
+                  <th>AI-PRIORITY</th>
                   <th>STATUS</th>
                   <th>TYPE</th>
                   <th>LOCATION</th>
-                  <th>AUTHOR</th>
+                  <th>PROC. STATUS</th>
                 </tr>
               </thead>
               <tbody>
                 {allReports.map((report) => (
                   <tr key={report.report_id}>
                     <td>
-                      <a href="#">{report.report_id}</a>
+                      <Link to={`/userAccount/${report.report_id}`}>
+                        {report.report_id}
+                      </Link>
                     </td>
                     <td className="truncate-cell">
                       <TruncatedCell text={report.title} />
@@ -302,17 +328,13 @@ const AdminPanel = () => {
                         ))}
                       </select>
                     </td>
-
+                    <td>{report.suggest_priority_name}</td>
                     <td>
                       <select
                         className="admin-select"
                         value={report.status_id}
                         onChange={(e) =>
-                          handleStatusChange(
-                            report.report_id,
-                            e.target.value,
-                            "test"
-                          )
+                          handleStatusChange(report.report_id, e.target.value)
                         }
                       >
                         {statuses.map((status) => (
@@ -322,12 +344,12 @@ const AdminPanel = () => {
                         ))}
                       </select>
                     </td>
-                    <td>{report.problem_type_name}</td>
+                    <td>{report.problem_type}</td>
 
                     <td>
                       <TruncatedCell text={report.location} />
                     </td>
-                    <td>{report.user_name}</td>
+                    <td>{report.processing_status_name}</td>
                   </tr>
                 ))}
               </tbody>
@@ -335,6 +357,87 @@ const AdminPanel = () => {
           </div>
         </div>
       </div>
+      {showModal && (
+        <div className="modal-overlay-admin">
+          <div className="modal-admin">
+            <h2>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 5.75C7.59 5.75 7.25 5.41 7.25 5V2C7.25 1.59 7.59 1.25 8 1.25C8.41 1.25 8.75 1.59 8.75 2V5C8.75 5.41 8.41 5.75 8 5.75Z"
+                  fill="#292D32"
+                />
+                <path
+                  d="M16 5.75C15.59 5.75 15.25 5.41 15.25 5V2C15.25 1.59 15.59 1.25 16 1.25C16.41 1.25 16.75 1.59 16.75 2V5C16.75 5.41 16.41 5.75 16 5.75Z"
+                  fill="#292D32"
+                />
+                <path
+                  d="M15 11.75H7C6.59 11.75 6.25 11.41 6.25 11C6.25 10.59 6.59 10.25 7 10.25H15C15.41 10.25 15.75 10.59 15.75 11C15.75 11.41 15.41 11.75 15 11.75Z"
+                  fill="#292D32"
+                />
+                <path
+                  d="M12 15.75H7C6.59 15.75 6.25 15.41 6.25 15C6.25 14.59 6.59 14.25 7 14.25H12C12.41 14.25 12.75 14.59 12.75 15C12.75 15.41 12.41 15.75 12 15.75Z"
+                  fill="#292D32"
+                />
+                <path
+                  d="M15 22.75H9C3.38 22.75 2.25 20.1 2.25 15.82V9.65C2.25 4.91 3.85 2.98 7.96 2.75H16C20.15 2.98 21.75 4.91 21.75 9.65V16C21.75 16.41 21.41 16.75 21 16.75C20.59 16.75 20.25 16.41 20.25 16V9.65C20.25 5.29 18.8 4.41 15.96 4.25H8C5.2 4.41 3.75 5.29 3.75 9.65V15.82C3.75 19.65 4.48 21.25 9 21.25H15C15.41 21.25 15.75 21.59 15.75 22C15.75 22.41 15.41 22.75 15 22.75Z"
+                  fill="#292D32"
+                />
+                <path
+                  d="M15 22.75C14.9 22.75 14.81 22.73 14.71 22.69C14.43 22.57 14.25 22.3 14.25 22V19C14.25 16.58 15.58 15.25 18 15.25H21C21.3 15.25 21.58 15.43 21.69 15.71C21.81 15.99 21.74 16.31 21.53 16.53L15.53 22.53C15.39 22.67 15.2 22.75 15 22.75ZM18 16.75C16.42 16.75 15.75 17.42 15.75 19V20.19L19.19 16.75H18Z"
+                  fill="#292D32"
+                />
+              </svg>
+              Enter Official Response
+            </h2>
+            <textarea
+              rows={4}
+              value={adminResponse}
+              onChange={(e) => setAdminResponse(e.target.value)}
+              placeholder="Write your response here..."
+            />
+            <div className="modal-buttons-admin">
+              <button className="default" onClick={() => setShowModal(false)}>
+                Cancel
+              </button>
+              <button
+                className="danger"
+                onClick={() =>
+                  sendStatusUpdate(
+                    selectedReportId,
+                    selectedStatusId,
+                    adminResponse
+                  )
+                }
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showConfirm && (
+        <ConfirmDialog
+          message={[
+            "The report status has been updated successfully.",
+            "An official response has been added to the report.",
+          ]}
+          buttons={[
+            {
+              label: "Okay",
+              variant: "danger",
+              onClick: () => {
+                setShowConfirm(false);
+              },
+            },
+          ]}
+        />
+      )}
     </>
   );
 };

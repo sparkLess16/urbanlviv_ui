@@ -8,6 +8,7 @@ import ReportDetailPage from "./pages/ReportDetailPage";
 import RedirectOnStart from "./components/RedirectOnStart";
 import "./App.css";
 import AdminPanel from "./components/AdminPanel";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
   return (
@@ -55,9 +56,11 @@ function App() {
         <Route
           path="/adminPanel"
           element={
-            <Layout>
-              <AdminPanel />
-            </Layout>
+            <AdminRoute>
+              <Layout>
+                <AdminPanel />
+              </Layout>
+            </AdminRoute>
           }
         />
       </Routes>

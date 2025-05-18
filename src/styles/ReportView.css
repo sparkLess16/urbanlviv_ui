@@ -61,6 +61,91 @@
   padding-bottom: 4px;
   margin: 0;
 }
+
 .report-header {
   margin-top: 0;
+}
+
+.report-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.margin,
+.report-location {
+  margin: 0;
+}
+
+.admin-info-summary,
+.admin-info-recommentations {
+  width: 50%;
+  padding: 24px 24px;
+  background-color: #fbfbfb;
+  border-radius: 24px;
+}
+
+.admin-info-report {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.report-images-big {
+  display: flex;
+  gap: 8px;
+}
+
+.report-images-big img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 80%;
+  max-height: 80%;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  background: none;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+  padding: 10px 12px;
+}
+.lightbox-nav:hover {
+  background: #4a4a4ac3;
+}
+
+.lightbox-nav.left {
+  left: -80px;
+}
+
+.lightbox-nav.right {
+  right: -80px;
 }

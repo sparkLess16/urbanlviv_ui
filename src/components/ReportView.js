@@ -8,6 +8,7 @@ import ConfirmDialog from "./ConfirmDialog";
 
 const ReportView = () => {
   const { reportId } = useParams();
+  const [allReportData, setAllReportData] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
@@ -24,6 +25,10 @@ const ReportView = () => {
   const [showSuccessCancelDialog, setShowSuccessCancelDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const roleId = user?.data?.role_id;
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const userId = +JSON.parse(localStorage.getItem("user") || "{}")?.data
     ?.user_id;
@@ -31,7 +36,7 @@ const ReportView = () => {
   const navigate = useNavigate();
 
   const handleReturn = () => {
-    navigate("/userAccount");
+    navigate(-1);
   };
 
   const fetchReport = async () => {
@@ -53,10 +58,11 @@ const ReportView = () => {
       const raw = res.data.Data ?? res.data.data;
       const rpt = Array.isArray(raw) ? raw[0] : (raw ?? {});
       setReportData(rpt);
+      setAllReportData(rpt);
+      console.log(rpt);
 
       const files = attachment.data?.Data || [];
       setAttachments(files);
-      console.log("📎 Attachments:", files);
     } catch (err) {
       console.error("Error fetching report:", err);
     }
@@ -83,7 +89,6 @@ const ReportView = () => {
     setComments([]);
     setShowAllComments(false);
     setCommentInput("");
-
     fetchReport();
   }, [reportId]);
 
@@ -110,6 +115,7 @@ const ReportView = () => {
           comment_content: c.comment_content,
           created_dt: c.created_dt,
         }));
+        console.log(comms);
 
         setComments(comms);
       } catch (err) {
@@ -163,8 +169,15 @@ const ReportView = () => {
     return <div className="report-view-container">Loading...</div>;
   }
 
-  const { status_name, status_color,  title, created_dt, description, location, created_by } =
-    reportData;
+  const {
+    status_name,
+    status_color,
+    title,
+    created_dt,
+    description,
+    location,
+    created_by,
+  } = reportData;
 
   const isReportCreator = created_by === userId;
   const isReportEditable = ![3, 4, 5].includes(reportData.status_id);
@@ -296,6 +309,21 @@ const ReportView = () => {
     }
   }
 
+  const handleImageClick = (index) => {
+    setCurrentImageIndex(index);
+    setIsLightboxOpen(true);
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % attachments.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? attachments.length - 1 : prev - 1
+    );
+  };
+
   return (
     <div className="report-view-container">
       <div className="view-actions">
@@ -354,17 +382,24 @@ const ReportView = () => {
       </div>
 
       <div className="view-container">
-        <div   style={{ backgroundColor: status_color }} className="report-status">{status_name}</div>
+        <div
+          style={{ backgroundColor: status_color }}
+          className="report-status"
+        >
+          {status_name}
+        </div>
         {attachments.length > 0 && (
           <div className="report-images">
             {attachments.length > 0 && (
-              <div className="report-images">
+              <div className="report-images-big">
                 {attachments.map((file, i) => (
                   <div key={i}>
                     <img
                       src={file.file_object.Content}
                       alt={file.description || `attachment-${i}`}
-                      className="report-image"
+                      className="report-image-big"
+                      onClick={() => handleImageClick(i)}
+                      style={{ cursor: "pointer" }}
                     />
                   </div>
                 ))}
@@ -373,17 +408,42 @@ const ReportView = () => {
           </div>
         )}
 
-        <p className="report-type">{type}</p>
         <div className="report-header">
           <strong>{title}</strong>
           <span className="report-date">{formattedDate}</span>
         </div>
 
         <p className="report-description">{description}</p>
+        {roleId === "2" && (
+          <div className="admin-info-report">
+            <div className="admin-info-summary">
+              <p className="report-type margin">Official AI Summary</p>
+              <p className="report-officialSummary margin">
+                {allReportData.official_summary}
+              </p>
+            </div>
+            <div className="admin-info-recommentations">
+              <p className="report-type margin">AI Recommendations</p>
+              <p className="report-recommendations margin">
+                {allReportData.recommendations}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="report-location-priority">
-          <p className="report-location">📍 {location}</p>
-          <p className="report-priority"> ⚠️ {priorityName}</p>
+          <div className="report-details">
+            <p className="report-type margin">Location</p>
+            <p className="report-location">📍 {location}</p>
+          </div>
+          <div className="report-details">
+            <p className="report-type margin">Priority</p>
+            <p className="report-priority margin"> ⚠️ {priorityName}</p>
+          </div>
+          <div className="report-details">
+            <p className="report-type margin">Type</p>
+            <p className="report-priority margin"> 📄 {type}</p>
+          </div>
         </div>
 
         <div className="reaction-buttons">
@@ -463,7 +523,7 @@ const ReportView = () => {
           </svg>
         </div>
 
-        {status_name !== "Cancelled" && (
+        {!["Cancelled", "Resolved", "Rejected"].includes(status_name) && (
           <div className="comment-input">
             <input
               type="text"
@@ -523,6 +583,82 @@ const ReportView = () => {
             },
           ]}
         />
+      )}
+
+      {isLightboxOpen && (
+        <div
+          className="lightbox-overlay"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <div
+            className="lightbox-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={handlePrev}
+              className="lightbox-nav left"
+              disabled={attachments.length <= 1 || currentImageIndex === 0}
+              style={{
+                opacity:
+                  attachments.length <= 1 || currentImageIndex === 0 ? 0.3 : 1,
+              }}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M9.56945 18.8201C9.37945 18.8201 9.18945 18.7501 9.03945 18.6001L2.96945 12.5301C2.67945 12.2401 2.67945 11.7601 2.96945 11.4701L9.03945 5.40012C9.32945 5.11012 9.80945 5.11012 10.0995 5.40012C10.3895 5.69012 10.3895 6.17012 10.0995 6.46012L4.55945 12.0001L10.0995 17.5401C10.3895 17.8301 10.3895 18.3101 10.0995 18.6001C9.95945 18.7501 9.75945 18.8201 9.56945 18.8201Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M20.4999 12.75H3.66992C3.25992 12.75 2.91992 12.41 2.91992 12C2.91992 11.59 3.25992 11.25 3.66992 11.25H20.4999C20.9099 11.25 21.2499 11.59 21.2499 12C21.2499 12.41 20.9099 12.75 20.4999 12.75Z"
+                  fill="#FFFFFF"
+                />
+              </svg>
+            </button>
+            <img
+              src={attachments[currentImageIndex].file_object.Content}
+              alt="Preview"
+              className="lightbox-image"
+            />
+            <button
+              onClick={handleNext}
+              className="lightbox-nav right"
+              disabled={
+                attachments.length <= 1 ||
+                currentImageIndex === attachments.length - 1
+              }
+              style={{
+                opacity:
+                  attachments.length <= 1 ||
+                  currentImageIndex === attachments.length - 1
+                    ? 0.3
+                    : 1,
+              }}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14.4301 18.8201C14.2401 18.8201 14.0501 18.7501 13.9001 18.6001C13.6101 18.3101 13.6101 17.8301 13.9001 17.5401L19.4401 12.0001L13.9001 6.46012C13.6101 6.17012 13.6101 5.69012 13.9001 5.40012C14.1901 5.11012 14.6701 5.11012 14.9601 5.40012L21.0301 11.4701C21.3201 11.7601 21.3201 12.2401 21.0301 12.5301L14.9601 18.6001C14.8101 18.7501 14.6201 18.8201 14.4301 18.8201Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M20.33 12.75H3.5C3.09 12.75 2.75 12.41 2.75 12C2.75 11.59 3.09 11.25 3.5 11.25H20.33C20.74 11.25 21.08 11.59 21.08 12C21.08 12.41 20.74 12.75 20.33 12.75Z"
+                  fill="#FFFFFF"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

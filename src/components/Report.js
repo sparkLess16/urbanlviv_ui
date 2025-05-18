@@ -7,7 +7,7 @@ const Report = ({ data }) => {
   const navigate = useNavigate();
   const {
     status_name,
-      status_color,
+    status_color,
     title,
     created_dt,
     description,
@@ -144,7 +144,6 @@ const Report = ({ data }) => {
       console.error("Помилка при створенні/скасуванні реакції:", err);
     }
   };
-
   return (
     <div
       className="report-card"
@@ -154,7 +153,9 @@ const Report = ({ data }) => {
         )
       }
     >
-      <div className="report-status"   style={{ backgroundColor: status_color }}>{status_name}</div>
+      <div className="report-status" style={{ backgroundColor: status_color }}>
+        {status_name}
+      </div>
       <div className="report-header">
         <strong>{title}</strong>
         <span className="report-date">{formattedDate}</span>
@@ -176,7 +177,7 @@ const Report = ({ data }) => {
         <button
           className={`reaction-btn ${userReaction === "like" ? "active" : ""}`}
           onClick={(e) => {
-            e.stopPropagation(); // prevent report click
+            e.stopPropagation();
             handleLike();
           }}
         >
@@ -186,7 +187,7 @@ const Report = ({ data }) => {
         <button
           className={`reaction-btn ${userReaction === "dislike" ? "active" : ""}`}
           onClick={(e) => {
-            e.stopPropagation(); // prevent report click
+            e.stopPropagation();
             handleDislike();
           }}
         >
@@ -249,7 +250,7 @@ const Report = ({ data }) => {
           <path d="M0 1H566" stroke="#F3F3F3" strokeWidth="2" />
         </svg>
       </div>
-      {status_name !== "Cancelled" && (
+      {!["Cancelled", "Resolved", "Rejected"].includes(status_name) && (
         <div className="comment-input">
           <input
             type="text"

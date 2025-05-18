@@ -4,6 +4,8 @@ import "../styles/Layout.css";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const roleId = user?.data?.role_id;
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -24,6 +26,9 @@ const Layout = ({ children }) => {
           UrbanLviv
         </h1>
         <div className="header-buttons">
+          {isAuthenticated && roleId === "2" && (
+            <button onClick={() => navigate("/adminPanel")}>Admin Panel</button>
+          )}
           {isAuthenticated ? (
             <button className="sign-out-btn" onClick={handleSignOut}>
               Sign Out
