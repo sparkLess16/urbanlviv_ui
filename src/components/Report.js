@@ -68,7 +68,9 @@ const Report = ({ data }) => {
       );
 
       const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const commenterName = storedUser.name || "Anonymous";
+      const commenterName = storedUser?.data?.first_name && storedUser?.data?.last_name
+          ? `${storedUser.data.first_name} ${storedUser.data.last_name}`
+          : "Unknown User";
 
       const newComment = {
         comment_content: commentInput,
