@@ -5,6 +5,7 @@ import UserAccountPage from "./pages/UserAccountPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ReportDetailPage from "./pages/ReportDetailPage";
+import VerificationPage from "./pages/VerificationPage";
 import RedirectOnStart from "./components/RedirectOnStart";
 import "./App.css";
 import AdminPanel from "./components/AdminPanel";
@@ -20,6 +21,14 @@ function App() {
           element={
             <Layout>
               <LoginPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/verification"
+          element={
+            <Layout>
+              <VerificationPage />
             </Layout>
           }
         />
