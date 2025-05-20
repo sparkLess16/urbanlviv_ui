@@ -114,6 +114,7 @@ const ReportView = () => {
           created_by: c.created_by,
           comment_content: c.comment_content,
           created_dt: c.created_dt,
+          created_by_role_name: c.created_by_role_name,
         }));
         console.log(comms);
 
@@ -493,7 +494,12 @@ const ReportView = () => {
             (comment, index) => (
               <div className="comment" key={index}>
                 <div className="comment-upper">
-                  <p className="comment-name">{comment.created_by}</p>
+                  <p className="comment-name">
+                    {comment.created_by}
+                    {comment.created_by_role_name === "Administrator" && (
+                      <span className="admin-label">Admin</span>
+                    )}
+                  </p>
                   <p className="comment-date">
                     {new Date(comment.created_dt).toLocaleString("en-GB", {
                       day: "2-digit",

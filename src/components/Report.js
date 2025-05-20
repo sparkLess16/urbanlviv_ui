@@ -222,7 +222,12 @@ const Report = ({ data }) => {
           (comment, index) => (
             <div className="comment" key={index}>
               <div className="comment-upper">
-                <p className="comment-name">{comment.created_by}</p>
+                <p className="comment-name">
+                  {comment.created_by}
+                  {comment.created_by_role_name === "Administrator" && (
+                    <span className="admin-label">Admin</span>
+                  )}
+                </p>
                 <p className="comment-date">
                   {new Date(comment.created_dt).toLocaleString("en-GB", {
                     day: "2-digit",
