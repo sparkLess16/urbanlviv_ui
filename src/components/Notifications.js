@@ -17,7 +17,9 @@ const Notifications = ({ data = [] }) => {
             <div key={notif.notification_id} className="notifications-block">
               <div className="one">
                 <p className="title">{notif.notification_title}</p>
-                <p className="description">{notif.notification_content}</p>
+                <p className="notif-description">
+                  {notif.notification_content}
+                </p>
               </div>
             </div>
           ))}

@@ -2,15 +2,14 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 89%;
-  height: 40px;
+  width: 100%;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.7);
   color: rgb(255, 255, 255);
-  padding: 10px 90px;
+  padding: 10px 0;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -20,6 +19,7 @@
   font-weight: 300;
   cursor: pointer;
   color: black;
+  padding-left: 90px;
 }
 
 .header-buttons button {
@@ -37,4 +37,18 @@
 
 .header-buttons button:hover {
   color: rgb(103, 102, 102);
+}
+
+.header-buttons {
+  padding-right: 90px;
+}
+
+@media (max-width: 425px) {
+  .header-buttons,
+  .logo {
+    padding: 0 20px;
+  }
+  .logo {
+    margin: 0;
+  }
 }

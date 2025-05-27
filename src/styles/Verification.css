@@ -40,3 +40,12 @@
 .login-button:hover {
   background-color: #3e3e3e;
 }
+
+@media (max-width: 425px) {
+  .verification-title {
+    font-size: 24px;
+  }
+  .verification-container {
+    max-width: 240px;
+  }
+}

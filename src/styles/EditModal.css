@@ -33,3 +33,15 @@
   display: block;
   margin-top: 4px;
 }
+
+@media (max-width: 768px) {
+  .edit-report-form {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 425px) {
+  .edit-report-form {
+    max-width: 280px;
+  }
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import myImage from "../assets/useraccount.png";
 import "../styles/UserAccount.css";
 import Tabs from "./Tabs";
@@ -66,12 +66,6 @@ const UserAccount = () => {
       const unreadCount =
         typeof resp.data.Data === "number" ? resp.data.Data : 0;
       setUnreadNotifs(unreadCount);
-      console.log(
-        "🔄 Unread count:",
-        unreadCount,
-        "⏰",
-        new Date().toLocaleTimeString()
-      );
     } catch (err) {
       console.error("Error fetching unread notifications:", err);
       setUnreadNotifs(0);
@@ -138,7 +132,6 @@ const UserAccount = () => {
       );
 
       const notifs = (data.Data || []).filter((n) => !n.is_read);
-      console.log("notifs:", notifs);
 
       const markRequests = notifs.map((notif) =>
         axios.get(
@@ -156,6 +149,24 @@ const UserAccount = () => {
       console.error("Error marking notifications as viewed:", err);
     }
   };
+
+  const useClickOutside = (ref, callback, active = true) => {
+    useEffect(() => {
+      if (!active) return;
+
+      const handleClick = (e) => {
+        if (ref.current && !ref.current.contains(e.target)) {
+          callback();
+        }
+      };
+
+      document.addEventListener("mousedown", handleClick);
+      return () => document.removeEventListener("mousedown", handleClick);
+    }, [ref, callback, active]);
+  };
+
+  const notifRef = useRef(null);
+  useClickOutside(notifRef, closeNotif, isOpenNotif);
 
   return (
     <div className="userAccount">
@@ -272,21 +283,21 @@ const UserAccount = () => {
                 {unreadNotifs > 0 && (
                   <span className="notif-count">{unreadNotifs}</span>
                 )}
-              </div>
-
-              {isOpenNotif && (
-                <div className="modal-overlay" onClick={closeNotif}>
-                  <div
-                    className="modal-content-notif"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <h4 className="notificationBox">Notificaton Box</h4>
-                    <div className="notif-scrollable">
-                      <Notifications data={notificationsData} />
+                {isOpenNotif && (
+                  <div className="modal-overlay" onClick={closeNotif}>
+                    <div
+                      className="modal-content-notif"
+                      onClick={(e) => e.stopPropagation()}
+                      ref={notifRef}
+                    >
+                      <h4 className="notificationBox">Notificaton Box</h4>
+                      <div className="notif-scrollable">
+                        <Notifications data={notificationsData} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 

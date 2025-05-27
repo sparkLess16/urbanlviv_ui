@@ -1,14 +1,11 @@
 .top-pic {
   width: 100vw;
   margin-bottom: 32px;
+  min-height: 120px;
 }
 
 .userAccount {
   display: block;
-}
-.container-useraccount {
-  margin-left: 75px;
-  margin-right: 75px;
 }
 
 p {
@@ -20,7 +17,7 @@ p {
 
 .text-unimport {
   color: #666666;
-  width: 553px;
+  width: 500px;
 }
 
 .tabs {
@@ -64,15 +61,15 @@ p {
 }
 
 .right-side {
-  width: 600px;
+  width: 500px;
   display: block;
 }
 
 .container-useraccount {
   display: flex;
-  width: 90%;
+  width: 100%;
   justify-content: center;
-  gap: 120px;
+  gap: 80px;
 }
 
 .left-side {
@@ -154,15 +151,12 @@ p {
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 32px;
-  left: -220px;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
   z-index: 1000;
+  width: 320px;
 }
 
 .notificationBox {
@@ -198,4 +192,43 @@ p {
 }
 .notif-scrollable::-webkit-scrollbar {
   display: none;
+}
+
+@media (max-width: 1024px) {
+  .right-side {
+    width: 400px;
+  }
+  .text-unimport {
+    width: 400px;
+  }
+  .container-useraccount {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 820px) {
+  .text-unimport {
+    width: 90%;
+  }
+  .name {
+    font-size: 20px;
+  }
+  p {
+    font-size: 12px;
+  }
+  .container-useraccount {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .right-side {
+    max-width: 600px;
+  }
+  .left-side {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 425px) {
 }

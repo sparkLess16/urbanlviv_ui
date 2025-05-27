@@ -1,7 +1,7 @@
 .signup-container-content {
-  width: 400px;
+  width: 320px;
   margin: 0 auto;
-  padding-top: 64px;
+  padding-top: 48px;
 }
 
 .login-link {
@@ -71,6 +71,7 @@ label {
 .terms {
   color: #666666;
   font-size: 12px;
+  margin-top: 0;
 }
 
 .img-signup {
@@ -81,4 +82,25 @@ label {
 .signup-container {
   display: flex;
   align-items: center;
+}
+
+@media (max-width: 768px) {
+  .signup-container {
+    flex-direction: column;
+  }
+  .img-signup {
+    width: 100vw;
+    height: 400px;
+    object-fit: cover;
+    object-position: top;
+  }
+}
+
+@media (max-width: 425px) {
+  .signup-container-content-title {
+    font-size: 24px;
+  }
+  .signup-container-content {
+    padding-top: 16px;
+  }
 }

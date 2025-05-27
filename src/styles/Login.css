@@ -1,5 +1,5 @@
 .login-container-content {
-  width: 400px;
+  width: 320px;
   margin: 0 auto;
 }
 
@@ -77,4 +77,25 @@ input::placeholder {
 
 .login-container-content-title {
   font-size: 32px;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+  .image-login {
+    width: 100vw;
+    height: 400px;
+    object-fit: cover;
+    object-position: top;
+  }
+}
+
+@media (max-width: 425px) {
+  .login-container-content-title {
+    font-size: 24px;
+  }
+  .login-container-content {
+    width: 200px;
+  }
 }
