@@ -236,41 +236,6 @@ const EditModal = ({
             )}
           </div>
 
-          <div className="input-group full-width">
-            <label>Photo</label>
-            <div className="photo-container full-width">
-              {photoInputs.length > 0 ? (
-                photoInputs.map((id) => (
-                  <div key={id} className="photo-upload-wrapper">
-                    <div
-                      className="photo-upload"
-                      onClick={() => handlePhotoClick(id)}
-                    >
-                      {previews[id] ? (
-                        <img
-                          src={previews[id]}
-                          alt="Preview"
-                          className="preview"
-                        />
-                      ) : (
-                        <span>Add Photo</span>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        ref={(el) => (inputRefs.current[id] = el)}
-                        onChange={(e) => handlePhotoChange(e, id)}
-                      />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div>No photos available</div>
-              )}
-            </div>
-          </div>
-
           <button onClick={submitReport} disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Save Changes"}
           </button>

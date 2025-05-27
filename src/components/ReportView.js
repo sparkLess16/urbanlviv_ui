@@ -469,13 +469,13 @@ const ReportView = () => {
 
         <div className="comments-section">
           <svg
-            width="826"
+            width="1100"
             height="2"
-            viewBox="0 0 826 2"
+            viewBox="0 0 1100 2"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M0 1H826" stroke="#F3F3F3" strokeWidth="2" />
+            <path d="M0 1H1100" stroke="#F3F3F3" strokeWidth="2" />
           </svg>
 
           <div className="comment-section-title">
@@ -519,13 +519,13 @@ const ReportView = () => {
             )
           )}
           <svg
-            width="826"
+            width="1100"
             height="2"
-            viewBox="0 0 826 2"
+            viewBox="0 0 1100 2"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path d="M0 1H826" stroke="#F3F3F3" strokeWidth="2" />
+            <path d="M0 1H1100" stroke="#F3F3F3" strokeWidth="2" />
           </svg>
         </div>
 

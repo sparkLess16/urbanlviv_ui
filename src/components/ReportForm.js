@@ -19,6 +19,8 @@ const ReportForm = ({ onSubmitted }) => {
   const inputRefs = useRef({});
   const [errors, setErrors] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -70,12 +72,13 @@ const ReportForm = ({ onSubmitted }) => {
   const handlePhotoChange = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onloadend = () => {
-      const dataUrl = reader.result; // includes "data:image/...;base64,"
-      // show preview
+      const dataUrl = reader.result;
+
+      // оновити previews та attachments
       setPreviews((prev) => ({ ...prev, [index]: dataUrl }));
-      // save attachment with full Data URL
       setAttachments((prev) => ({
         ...prev,
         [index]: {
@@ -84,11 +87,21 @@ const ReportForm = ({ onSubmitted }) => {
           FileDescription: file.name,
         },
       }));
+
+      // перевірити: чи всі наявні photoInputs мають превʼю?
+      setPhotoInputs((prevInputs) => {
+        const allUsed = prevInputs.every((id) => previews[id] || id === index);
+        if (allUsed) {
+          return [
+            ...prevInputs,
+            prevInputs.length ? Math.max(...prevInputs) + 1 : 1,
+          ];
+        }
+        return prevInputs;
+      });
     };
+
     reader.readAsDataURL(file);
-    if (index === photoInputs.length - 1) {
-      setPhotoInputs((prev) => [...prev, prev.length]);
-    }
   };
 
   const submitReport = async () => {
@@ -153,6 +166,28 @@ const ReportForm = ({ onSubmitted }) => {
       setError("Не вдалося створити звіт");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  const requestPhotoDelete = (id) => {
+    setConfirmDeleteId(id);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmPhotoDelete = () => {
+    if (confirmDeleteId !== null) {
+      const newPreviews = { ...previews };
+      const newAttachments = { ...attachments };
+
+      delete newPreviews[confirmDeleteId];
+      delete newAttachments[confirmDeleteId];
+
+      setPreviews(newPreviews);
+      setAttachments(newAttachments);
+      setPhotoInputs((prevInputs) =>
+        prevInputs.filter((id) => id !== confirmDeleteId)
+      );
+      setShowDeleteDialog(false);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -263,7 +298,19 @@ const ReportForm = ({ onSubmitted }) => {
                 onClick={() => handlePhotoClick(id)}
               >
                 {previews[id] ? (
-                  <img src={previews[id]} alt="Preview" className="preview" />
+                  <div className="image-preview-wrapper">
+                    <img src={previews[id]} alt="Preview" className="preview" />
+                    <button
+                      type="button"
+                      className="delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        requestPhotoDelete(id);
+                      }}
+                    >
+                      &times;
+                    </button>
+                  </div>
                 ) : (
                   <span>Add Photo</span>
                 )}
@@ -294,6 +341,28 @@ const ReportForm = ({ onSubmitted }) => {
                 setShowConfirm(false);
                 if (onSubmitted) onSubmitted();
               },
+            },
+          ]}
+        />
+      )}
+      {showDeleteDialog && (
+        <ConfirmDialog
+          message={[
+            "Are you sure you want to delete this photo?",
+            "This action cannot be undone.",
+          ]}
+          buttons={[
+            {
+              label: "Cancel",
+              onClick: () => {
+                setShowDeleteDialog(false);
+                setConfirmDeleteId(null);
+              },
+            },
+            {
+              label: "Delete",
+              variant: "danger",
+              onClick: confirmPhotoDelete,
             },
           ]}
         />

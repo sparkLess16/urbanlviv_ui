@@ -43,11 +43,10 @@ const UserAccount = () => {
   const firstName = userData.first_name || "";
   const lastName = userData.last_name || "";
 
-  const formattedName = `${firstName} ${lastName}`.toUpperCase();
+  const formattedName = `${firstName} ${lastName}`;
 
   const handleReportSubmitted = async () => {
     setShouldRefreshReports(true);
-    // Зачекай трохи — серверу може бути потрібно кілька мс
     tryUpdateNotifications();
   };
 

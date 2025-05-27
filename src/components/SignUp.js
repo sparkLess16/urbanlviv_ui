@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import "../styles/SignUp.css";
 import myImage from "../assets/img2.jpg";
+import ConfirmDialog from "./ConfirmDialog";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState([]);
 
   // Define the validation schema with Yup
   const validationSchema = Yup.object().shape({
@@ -46,7 +49,11 @@ const Signup = () => {
 
       // Assuming a success status is 200 or 201, navigate to login page
       if (response.status === 201 || response.status === 200) {
-        navigate("/login");
+        setConfirmMessage([
+          "Registration successful!",
+          "Please confirm your email by clicking the link we've sent to your inbox.",
+        ]);
+        setShowConfirm(true);
       }
     } catch (error) {
       // If there is an error from the API, set a server error in Formik
@@ -188,6 +195,21 @@ const Signup = () => {
           )}
         </Formik>
       </div>
+      {showConfirm && (
+        <ConfirmDialog
+          message={confirmMessage}
+          buttons={[
+            {
+              label: "Okay",
+              onClick: () => {
+                setShowConfirm(false);
+                navigate("/login");
+              },
+              variant: "primary",
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };

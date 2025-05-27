@@ -5,9 +5,13 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import "../styles/Login.css";
 import myImage from "../assets/login.jpeg";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState([]);
 
   const handleLogin = async (values, { setSubmitting }) => {
     const { email, password } = values;
@@ -49,9 +53,11 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert(
-        "Login failed: " + (error.response?.data?.message || error.message)
-      );
+      setConfirmMessage([
+        "Login failed",
+        "Please check your email and password and try again.",
+      ]);
+      setShowConfirm(true);
     } finally {
       setSubmitting(false);
     }
@@ -136,6 +142,18 @@ const Login = () => {
           )}
         </Formik>
       </div>
+      {showConfirm && (
+        <ConfirmDialog
+          message={confirmMessage}
+          buttons={[
+            {
+              label: "Try Again",
+              onClick: () => setShowConfirm(false),
+              variant: "primary",
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
