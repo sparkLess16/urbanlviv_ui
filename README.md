@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+# 📘 UrbanLviv
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> Вебзастосунок для подання та обробки міських звернень мешканців Львова.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 👤 Автор
 
-### `npm start`
+- **ПІБ**: Герус Андріана Орестівна
+- **Група**: ФЕІ-42
+- **Керівник**: ас. В.О. Парубочий
+- **Дата виконання**: 01.06.2025
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📌 Загальна інформація
 
-### `npm test`
+- **Тип проєкту**: Вебсайт
+- **Мова програмування**: JavaScript
+- **Фреймворки / Бібліотеки**: React, React Router, Axios, Formik, Yup, Tailwind CSS
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🧠 Опис функціоналу
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- 🔐 Реєстрація та логін із валідацією та email-підтвердженням
+- 🔏 Двофакторна перевірка для безпеки акаунта
+- 📝 Створення, редагування, скасування звернень
+- 💬 Коментування та реакції на звернення
+- 📸 Додавання/видалення фото при створенні звернень
+- 🔔 Сповіщення при зміні статусу звернень
+- 🧑‍💼 Панель адміністратора з керуванням усіма зверненнями
+- 🧠 Рекомендації і підсумок від ШІ (для адміністраторів)
+- 📱 Адаптивні версії сервісу
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🧱 Опис основних класів / файлів
 
-### `npm run eject`
+| Клас / Файл           | Призначення                                                                     |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `App.js`              | Головний файл додатку, відповідає зa маршрутизацію сторінок.                    |
+| `UserAccountPage.js`  | Сторінка кабінету користувача зі списком звернень, створенням нових.            |
+| `AdminPage.js`        | Сторінка для адміністратора з таблицею звернень та можливістю змінювати статус. |
+| `ReportDetailPage.js` | Сторінка перегляду конкретного звернення з коментарями, реакціями, фото.        |
+| `LoginPage.js`        | Сторінка входу користувача.                                                     |
+| `SignUpPage.js`       | Сторінка реєстрації нового користувача.                                         |
+| `VerificationPage.js` | Підтвердження акаунта після верифікації електронної пошти.                      |
+| `ReportForm.js`       | Форма створення нового звернення.                                               |
+| `Report.js`           | Компонент-картка одного звернення в списку.                                     |
+| `ReportView.js`       | Детальний перегляд звернення.                                                   |
+| `UserAccount`         | Компонент із інформацією про користувача, редагуванням профілю.                 |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## ▶️ Як запустити проєкт "з нуля"
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 1. Встановлення інструментів
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Node.js v18+
+- npm v9+
 
-## Learn More
+### 2. Клонування репозиторію
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+git clone https://github.com/sparkLess16/urbanlviv_ui.git
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3. Встановлення залежностей
 
-### Code Splitting
+```bash
+cd urbanlviv_ui
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 4. Запуск проєкту
 
-### Analyzing the Bundle Size
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 🖱️ Інструкція для користувача
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+1. **Головна сторінка** — вхід або реєстрація.
 
-### Advanced Configuration
+   - `🔐 Увійти` — авторизація існуючого користувача
+   - `📝 Зареєструватись` — створення нового профілю
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+2. **Після входу**:
 
-### Deployment
+   - Користувач бачить список усіх і власних звернень, а також форму для створення нових.
+   - Можна залишати коментарі, реакції, редагувати або скасовувати звернення.
+   - Кнопка `🗑️ Видалити` — повністю видаляє нотатку
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+3. **Адміністратор**:
+   - Має доступ до панелі керування всіма зверненнями.
+   - Може змінювати їхній статус, додавати офіційні відповіді.
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🧪 Проблеми і рішення
+
+| Проблема                                                 | Рішення                                                                          |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Не приходить лист з підтвердженням email                 | ППеревірте папку “Спам” або спробуйте зареєструватися повторно.                  |
+| Неможливо увійти після перезавантаження сторінки         | Переконайтесь, що ви пройшли верифікацію email. Якщо ні — завершіть її.          |
+| Не вдається додати фото до звернення                     | Перевірте, чи розмір файлу не перевищує ліміт (5MB) та формат — .jpg/.png.       |
+| Нічого не відбувається при натисканні кнопки “Надіслати” | Переконайтесь, що всі обов’язкові поля заповнені. Валідація підкаже, де помилка. |
+| Не можу змінити звернення                                | Якщо звернення скасовано або вирішено, воно блокується для редагування.          |
+
+---
